@@ -26,7 +26,7 @@ export default function MobileNav({ currentTab, setCurrentTab }: MobileNavProps)
   const visibleTabs = tabs.filter((t) => isAccessible(t.allowed));
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-16 border-t border-slate-200 bg-white/95 px-2 backdrop-blur-lg md:hidden justify-around items-center">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-16 min-h-[56px] border-t border-slate-200/80 bg-white/95 px-2 backdrop-blur-lg md:hidden justify-around items-center shadow-lg">
       {visibleTabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = currentTab === tab.id;
@@ -35,11 +35,11 @@ export default function MobileNav({ currentTab, setCurrentTab }: MobileNavProps)
           <button
             key={tab.id}
             onClick={() => setCurrentTab(tab.id)}
-            className={`flex flex-col items-center justify-center flex-1 py-1 text-[11px] font-bold transition-all ${
-              isActive ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'
+            className={`flex flex-col items-center justify-center flex-1 py-1.5 min-h-[48px] text-[11px] font-bold transition-all active:scale-95 ${
+              isActive ? 'text-sky-600' : 'text-slate-400 hover:text-slate-600'
             }`}
           >
-            <Icon className={`h-5 w-5 mb-0.5 ${isActive ? 'stroke-[2.5]' : ''}`} />
+            <Icon className={`h-5 w-5 mb-0.5 ${isActive ? 'stroke-[2.5] text-sky-600' : ''}`} />
             <span>{tab.label}</span>
           </button>
         );

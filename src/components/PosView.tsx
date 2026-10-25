@@ -22,6 +22,8 @@ import {
   Package,
   Layers,
 } from 'lucide-react';
+import CustomerDebtBadge from '@/components/CustomerDebtBadge';
+import KhqrModal from '@/components/KhqrModal';
 
 export default function PosView() {
   const {
@@ -209,35 +211,12 @@ export default function PosView() {
 
           {/* Customer Credit Status Widget */}
           {selectedCustomer && (
-            <div className="mt-4 pt-3 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-              <div className="bg-slate-50 rounded-lg p-2">
-                <span className="text-slate-500 block">{t.pos.creditLimit}</span>
-                <span className="font-bold text-slate-800">
-                  {formatUSD(selectedCustomer.credit_limit)}
-                </span>
-              </div>
-              <div className="bg-slate-50 rounded-lg p-2">
-                <span className="text-slate-500 block">{t.pos.currentDebt}</span>
-                <span className="font-bold text-amber-600">
-                  {formatUSD(selectedCustomer.current_balance)}
-                </span>
-              </div>
-              <div
-                className={`rounded-lg p-2 ${
-                  remainingCredit <= 20
-                    ? 'bg-rose-50 text-rose-700'
-                    : 'bg-emerald-50 text-emerald-700'
-                }`}
-              >
-                <span className="block opacity-80">{t.pos.availableCredit}</span>
-                <span className="font-bold">{formatUSD(remainingCredit)}</span>
-              </div>
-              <div className="bg-blue-50 rounded-lg p-2 text-blue-700">
-                <span className="block opacity-80">{t.pos.bottlesHeld}</span>
-                <span className="font-bold">
-                  {selectedCustomer.empty_bottles_held} {lang === 'km' ? 'ធុង' : 'Bottles'}
-                </span>
-              </div>
+            <div className="mt-3 pt-3 border-t border-slate-100">
+              <CustomerDebtBadge
+                currentBalance={selectedCustomer.current_balance}
+                creditLimit={selectedCustomer.credit_limit}
+                bottlesHeld={selectedCustomer.empty_bottles_held}
+              />
             </div>
           )}
         </div>
@@ -464,158 +443,84 @@ export default function PosView() {
             <label className="text-xs font-semibold text-slate-600 mb-1.5 block">
               {lang === 'km' ? 'វិធីសាស្ត្រទូទាត់' : 'Payment Method'}
             </label>
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-3 gap-2.5">
+              {/* Button 1: Cash */}
               <button
                 type="button"
                 onClick={() => setPaymentMethod('cash')}
-                className={`flex items-center gap-1.5 justify-center py-2 px-2.5 rounded-xl border font-semibold transition-all ${
+                className={`flex flex-col items-center justify-center min-h-[56px] py-2.5 px-2 rounded-2xl border font-bold transition-all active:scale-95 ${
                   paymentMethod === 'cash'
-                    ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-sm'
+                    ? 'border-sky-600 bg-sky-50 text-sky-700 shadow-sm ring-2 ring-sky-500/20'
                     : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                 }`}
               >
-                <Banknote className="h-4 w-4" />
-                {t.pos.payCash}
+                <span className="text-lg mb-0.5">💵</span>
+                <span className="text-xs">{t.pos.payCash}</span>
               </button>
 
+              {/* Button 2: KHQR */}
               <button
                 type="button"
                 onClick={() => {
                   setPaymentMethod('khqr');
                   setShowKhqrModal(true);
                 }}
-                className={`flex items-center gap-1.5 justify-center py-2 px-2.5 rounded-xl border font-semibold transition-all ${
+                className={`flex flex-col items-center justify-center min-h-[56px] py-2.5 px-2 rounded-2xl border font-bold transition-all active:scale-95 ${
                   paymentMethod === 'khqr'
-                    ? 'border-rose-600 bg-rose-50 text-rose-700 shadow-sm'
+                    ? 'border-red-600 bg-red-50 text-red-700 shadow-sm ring-2 ring-red-500/20'
                     : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                 }`}
               >
-                <QrColorIcon />
-                Bakong KHQR
+                <span className="text-lg mb-0.5">📱</span>
+                <span className="text-xs">ស្កេន KHQR</span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => setPaymentMethod('bank_transfer')}
-                className={`flex items-center gap-1.5 justify-center py-2 px-2.5 rounded-xl border font-semibold transition-all ${
-                  paymentMethod === 'bank_transfer'
-                    ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm'
-                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                }`}
-              >
-                <Building className="h-4 w-4" />
-                {t.pos.payBank}
-              </button>
-
+              {/* Button 3: Credit */}
               <button
                 type="button"
                 onClick={() => setPaymentMethod('credit')}
-                className={`flex items-center gap-1.5 justify-center py-2 px-2.5 rounded-xl border font-semibold transition-all ${
+                className={`flex flex-col items-center justify-center min-h-[56px] py-2.5 px-2 rounded-2xl border font-bold transition-all active:scale-95 ${
                   paymentMethod === 'credit'
                     ? isCreditExceeded
-                      ? 'border-rose-500 bg-rose-50 text-rose-700'
-                      : 'border-amber-600 bg-amber-50 text-amber-700 shadow-sm'
+                      ? 'border-rose-500 bg-rose-50 text-rose-700 ring-2 ring-rose-500/20'
+                      : 'border-amber-600 bg-amber-50 text-amber-700 shadow-sm ring-2 ring-amber-500/20'
                     : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                 }`}
               >
-                <CreditCard className="h-4 w-4" />
-                {t.pos.payCredit}
+                <span className="text-lg mb-0.5">📝</span>
+                <span className="text-xs">{t.pos.payCredit}</span>
               </button>
             </div>
           </div>
 
           {/* Error Banner */}
           {(errorMessage || isCreditExceeded) && (
-            <div className="flex items-center gap-2 rounded-xl bg-rose-50 p-2.5 text-xs text-rose-700 border border-rose-200">
+            <div className="flex items-center gap-2 rounded-xl bg-rose-50 p-3 text-xs text-rose-700 border border-rose-200">
               <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" />
               <span>{errorMessage || t.pos.insufficientCredit}</span>
             </div>
           )}
 
-          {/* Checkout Button */}
+          {/* Primary Action Button: Complete Sale */}
           <button
             onClick={handleCheckout}
             disabled={cart.length === 0 || isCreditExceeded}
-            className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 py-3 text-sm font-bold text-white shadow-lg shadow-blue-500/25 hover:from-blue-700 hover:to-cyan-700 transition-all disabled:opacity-50 disabled:pointer-events-none active:scale-[0.99]"
+            className="w-full flex h-14 min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-sky-600 text-sm md:text-base font-black text-white shadow-lg shadow-sky-600/25 hover:bg-sky-700 transition-all disabled:opacity-40 disabled:pointer-events-none active:scale-[0.99]"
           >
-            <CheckCircle2 className="h-4 w-4" />
-            {t.pos.checkout} ({formatUSD(grandTotal)})
+            <CheckCircle2 className="h-5 w-5" />
+            <span>✓ {t.pos.checkout} ({formatUSD(grandTotal)})</span>
           </button>
         </div>
       </div>
 
-      {/* MODAL 1: Bakong KHQR Payment Screen */}
-      {showKhqrModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl text-center relative border border-slate-100">
-            <button
-              onClick={() => setShowKhqrModal(false)}
-              className="absolute right-4 top-4 text-slate-400 hover:text-slate-600"
-            >
-              <X className="h-5 w-5" />
-            </button>
-
-            {/* Bakong Official Red Header */}
-            <div className="mb-4 inline-flex items-center justify-center rounded-2xl bg-[#E1251B] px-4 py-2 text-white font-black tracking-wide shadow-md shadow-red-500/30">
-              KHQR BAKONG
-            </div>
-
-            <h3 className="font-bold text-slate-900 text-base">
-              {lang === 'km' ? 'ស្កេនដើម្បីទូទាត់ប្រាក់' : 'Scan to Pay with Bakong / Any Bank'}
-            </h3>
-            <p className="text-xs text-slate-500 mt-1">
-              សហគ្រាសផលិតទឹកបរិសុទ្ធ ខ្មែរ អង្គរ (Khmer Angkor Water)
-            </p>
-
-            {/* Realistic KHQR Code Frame */}
-            <div className="my-5 flex justify-center">
-              <div className="relative rounded-2xl border-2 border-red-500 p-4 bg-white shadow-inner">
-                {/* Simulated QR Code Pattern */}
-                <div className="h-48 w-48 bg-slate-900 rounded-lg p-2 flex flex-col justify-between">
-                  <div className="flex justify-between">
-                    <div className="h-12 w-12 border-4 border-white rounded-md bg-slate-900 flex items-center justify-center">
-                      <div className="h-6 w-6 bg-white" />
-                    </div>
-                    <div className="h-12 w-12 border-4 border-white rounded-md bg-slate-900 flex items-center justify-center">
-                      <div className="h-6 w-6 bg-white" />
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-center">
-                    <div className="rounded bg-red-600 text-white px-2 py-0.5 text-[10px] font-bold">
-                      KHQR
-                    </div>
-                  </div>
-                  <div className="flex justify-between">
-                    <div className="h-12 w-12 border-4 border-white rounded-md bg-slate-900 flex items-center justify-center">
-                      <div className="h-6 w-6 bg-white" />
-                    </div>
-                    <div className="h-10 w-10 border-2 border-dashed border-white/50" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="text-center mb-5">
-              <span className="text-2xl font-black text-slate-900">
-                {formatUSD(grandTotal)}
-              </span>
-              <span className="text-xs text-slate-500 block">
-                ≈ {formatKHR(grandTotal)}
-              </span>
-            </div>
-
-            <button
-              onClick={() => {
-                setShowKhqrModal(false);
-                handleCheckout();
-              }}
-              className="w-full rounded-xl bg-emerald-600 py-2.5 text-xs font-bold text-white shadow-md shadow-emerald-600/20 hover:bg-emerald-700"
-            >
-              {lang === 'km' ? 'បញ្ជាក់ការទទួលប្រាក់ (Simulate Paid)' : 'Confirm Payment Received'}
-            </button>
-          </div>
-        </div>
-      )}
+      {/* MODAL 1: Bakong KHQR Component */}
+      <KhqrModal
+        isOpen={showKhqrModal}
+        onClose={() => setShowKhqrModal(false)}
+        onPaymentSuccess={handleCheckout}
+        amountUSD={grandTotal}
+        customerName={selectedCustomer?.name}
+      />
 
       {/* MODAL 2: ESC/POS Thermal Receipt (80mm/58mm format) */}
       {showReceiptModal && receiptData && (

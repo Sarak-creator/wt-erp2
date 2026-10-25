@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { translations } from '@/lib/i18n';
-import { formatUSD } from '@/lib/utils';
+import { formatUSD, formatKHR } from '@/lib/utils';
+import BottleCounter from '@/components/BottleCounter';
 import { Order, OrderStatus } from '@/types/database';
 import {
   Truck,
@@ -377,64 +378,70 @@ export default function DriverDispatchView() {
               Invoice #{selectedOrder.invoice_number}
             </p>
 
-            {/* Bottle Exchange Counters */}
-            <div className="mt-4 space-y-3 bg-slate-50 rounded-2xl p-4 border border-slate-200">
-              <span className="font-bold text-slate-800 block text-xs">
-                {lang === 'km' ? 'ចំនួនដោះដូរធុងជាក់ស្តែង:' : 'Bottle Handover Counter:'}
-              </span>
+            {/* The "Bottle & Cash Exchange" Widget */}
+            <div className="mt-4 space-y-4">
+              <BottleCounter
+                label={lang === 'km' ? 'ទឹកបរិសុទ្ធដឹកជូន (Water Delivered)' : 'Water Delivered (Full Gallons)'}
+                subLabel={lang === 'km' ? 'ធុង ២០លីត្រ ពេញ' : '20L Full Gallons'}
+                value={deliveredCount}
+                onChange={setDeliveredCount}
+                variant="sky"
+                min={1}
+                presets={[5, 10, 20]}
+              />
 
-              {/* Full Bottles Delivered */}
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-slate-700">
-                  {t.bottles.bottlesOut} (Full Delivered):
-                </span>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setDeliveredCount(Math.max(1, deliveredCount - 1))}
-                    className="h-7 w-7 rounded-lg bg-white border border-slate-300 font-bold"
-                  >
-                    -
-                  </button>
-                  <span className="w-8 text-center font-bold text-sm text-slate-900">
-                    {deliveredCount}
-                  </span>
-                  <button
-                    onClick={() => setDeliveredCount(deliveredCount + 1)}
-                    className="h-7 w-7 rounded-lg bg-blue-600 text-white font-bold"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
+              <BottleCounter
+                label={lang === 'km' ? 'សំបកធុងទទេប្រមូលបាន (Empties Collected)' : 'Empty Bottles Collected'}
+                subLabel={lang === 'km' ? 'សំបកធុងដោះដូរទទេ' : 'Empty Return Gallons'}
+                value={returnedEmpties}
+                onChange={setReturnedEmpties}
+                variant="amber"
+                min={0}
+                presets={[5, 10, 20]}
+              />
 
-              {/* Empty Bottles Received */}
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-slate-700">
-                  {t.bottles.bottlesIn} (Empties Received):
-                </span>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setReturnedEmpties(Math.max(0, returnedEmpties - 1))}
-                    className="h-7 w-7 rounded-lg bg-white border border-slate-300 font-bold"
-                  >
-                    -
-                  </button>
-                  <span className="w-8 text-center font-bold text-sm text-slate-900">
-                    {returnedEmpties}
-                  </span>
-                  <button
-                    onClick={() => setReturnedEmpties(returnedEmpties + 1)}
-                    className="h-7 w-7 rounded-lg bg-amber-500 text-white font-bold"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
+              {/* Auto-calculated Money Banner */}
+              {(() => {
+                const selectedCust = customers.find((c) => c.id === selectedOrder.customer_id);
+                const unitPrice = selectedCust?.price_tier === 'retail' ? 1.25 : 0.90;
+                const waterAmount = deliveredCount * unitPrice;
+                const bottleDiff = Math.max(0, deliveredCount - returnedEmpties);
+                const depositCharge = bottleDiff * 3.0;
+                const totalCollectedMoney = waterAmount + depositCharge;
+
+                return (
+                  <div className="rounded-2xl bg-emerald-50 border border-emerald-200/80 p-3.5 space-y-1.5">
+                    <div className="flex items-center justify-between text-xs text-emerald-800">
+                      <span>{lang === 'km' ? `ថ្លៃទឹក (${deliveredCount} ធុង):` : `Water (${deliveredCount} btl):`}</span>
+                      <span className="font-bold tabular-nums font-mono">{formatUSD(waterAmount)}</span>
+                    </div>
+                    {depositCharge > 0 && (
+                      <div className="flex items-center justify-between text-xs text-amber-800">
+                        <span>{lang === 'km' ? `កក់សំបកខ្វះ (${bottleDiff} ធុង @ $3):` : `Deposit diff (${bottleDiff} btl):`}</span>
+                        <span className="font-bold tabular-nums font-mono">+{formatUSD(depositCharge)}</span>
+                      </div>
+                    )}
+                    <div className="pt-2 border-t border-emerald-200/60 flex items-baseline justify-between">
+                      <span className="text-xs font-black text-emerald-950 uppercase">
+                        {lang === 'km' ? 'ប្រាក់ត្រូវប្រមូល (Collected Money):' : 'Collected Money:'}
+                      </span>
+                      <div className="text-right">
+                        <span className="text-xl font-black text-emerald-800 tabular-nums font-mono">
+                          {formatUSD(totalCollectedMoney)}
+                        </span>
+                        <span className="text-[10px] text-emerald-600 block">
+                          ≈ {formatKHR(totalCollectedMoney)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Proof of Delivery Options */}
             <div className="mt-4 space-y-2">
-              <span className="font-bold text-slate-700 block">
+              <span className="font-bold text-slate-700 block text-xs">
                 {t.logistics.pod}:
               </span>
               <div className="grid grid-cols-2 gap-2">
@@ -466,17 +473,18 @@ export default function DriverDispatchView() {
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="mt-5 flex gap-2">
+            {/* One-Tap Completion: Single Big Green Button */}
+            <div className="mt-5 space-y-2">
               <button
                 onClick={handleConfirmDelivery}
-                className="flex-1 rounded-xl bg-emerald-600 py-3 font-bold text-white shadow-md hover:bg-emerald-700"
+                className="w-full flex h-14 min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-emerald-600 text-sm md:text-base font-black text-white shadow-lg shadow-emerald-600/25 hover:bg-emerald-700 active:scale-[0.99] transition-all"
               >
-                {t.logistics.confirmDelivery}
+                <Check className="h-5 w-5 stroke-[2.5]" />
+                <span>✓ {lang === 'km' ? 'បញ្ចប់ការដឹក (Mark Delivered)' : 'Mark Delivered'}</span>
               </button>
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="rounded-xl border border-slate-300 px-4 py-3 font-semibold text-slate-700 hover:bg-slate-50"
+                className="w-full py-2 text-xs font-semibold text-slate-500 hover:text-slate-800"
               >
                 {t.common.cancel}
               </button>

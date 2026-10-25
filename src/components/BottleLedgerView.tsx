@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { translations } from '@/lib/i18n';
 import { formatUSD } from '@/lib/utils';
+import MetricCard from '@/components/MetricCard';
 import {
   Package,
   ArrowUpRight,
@@ -16,6 +17,7 @@ import {
   Calendar,
   Building2,
   X,
+  Droplet,
 } from 'lucide-react';
 
 export default function BottleLedgerView() {
@@ -117,86 +119,81 @@ export default function BottleLedgerView() {
 
       {/* KPI Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Circulation */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <span className="text-xs font-semibold text-slate-500 block">
-            {t.bottles.totalCirculation}
-          </span>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl font-black text-slate-900">
-              {totalCirculation.toLocaleString()}
-            </span>
-            <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-bold text-blue-600">
-              20L Gallons
-            </span>
-          </div>
-          <p className="text-[11px] text-slate-400 mt-1">
-            {lang === 'km' ? 'រួមទាំងធុងពេញ និងសំបក' : 'Full water + Empties combined'}
-          </p>
-        </div>
+        {/* 1. សំបកនៅខាងក្រៅ (Bottles in Market) */}
+        <MetricCard
+          title={lang === 'km' ? 'សំបកនៅខាងក្រៅ (In Market)' : 'Bottles in Market'}
+          value={`${totalHeldByCustomers.toLocaleString()} ធុង`}
+          subValue={lang === 'km' ? 'នៅតាមផ្ទះអតិថិជន' : 'with clients'}
+          icon={ArrowUpRight}
+          iconColor="text-amber-600"
+          iconBg="bg-amber-50 border-amber-100"
+          change={{
+            value: `${customers.length} អតិថិជន`,
+            trend: 'neutral',
+            label: lang === 'km' ? 'កំពុងកាន់កាប់' : 'holding bottles',
+          }}
+          highlight={true}
+          badge={lang === 'km' ? 'នៅខាងក្រៅ' : 'Out'}
+          badgeColor="bg-amber-50 text-amber-700"
+        />
 
-        {/* Held By Customers */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <span className="text-xs font-semibold text-slate-500 block">
-            {t.bottles.heldByCustomers}
-          </span>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl font-black text-amber-600">
-              {totalHeldByCustomers.toLocaleString()}
-            </span>
-            <div className="flex items-center text-xs font-bold text-amber-600">
-              <ArrowUpRight className="h-4 w-4" />
-              <span>Out</span>
-            </div>
-          </div>
-          <p className="text-[11px] text-slate-400 mt-1">
-            {lang === 'km' ? 'នៅតាមផ្ទះ និងហាងអតិថិជន' : 'Currently with registered clients'}
-          </p>
-        </div>
+        {/* 2. សំបកនៅក្នុងឃ្លាំង (Bottles in Warehouse) */}
+        <MetricCard
+          title={lang === 'km' ? 'សំបកនៅក្នុងឃ្លាំង (In Factory)' : 'Bottles in Warehouse'}
+          value={`${(warehouseAssetBottles + fullWarehouseGallons).toLocaleString()} ធុង`}
+          subValue={`${fullWarehouseGallons} ពេញ / ${warehouseAssetBottles} សំបក`}
+          icon={ArrowDownLeft}
+          iconColor="text-emerald-600"
+          iconBg="bg-emerald-50 border-emerald-100"
+          change={{
+            value: 'Ready',
+            trend: 'up',
+            label: lang === 'km' ? 'ត្រៀមច្រកទឹក' : 'ready for refill',
+          }}
+          badge={lang === 'km' ? 'ក្នុងស្តុក' : 'Stock'}
+          badgeColor="bg-emerald-50 text-emerald-700"
+        />
 
-        {/* Warehouse Inventory */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <span className="text-xs font-semibold text-slate-500 block">
-            {t.bottles.factoryWarehouse}
-          </span>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl font-black text-emerald-600">
-              {(warehouseAssetBottles + fullWarehouseGallons).toLocaleString()}
-            </span>
-            <div className="flex items-center text-xs font-bold text-emerald-600">
-              <ArrowDownLeft className="h-4 w-4" />
-              <span>Stock</span>
-            </div>
-          </div>
-          <p className="text-[11px] text-slate-400 mt-1">
-            {fullWarehouseGallons} Full / {warehouseAssetBottles} Empty
-          </p>
-        </div>
+        {/* 3. ប្រាក់កក់សរុប (Held Deposit Amount) */}
+        <MetricCard
+          title={lang === 'km' ? 'ប្រាក់កក់សរុប (Held Deposits)' : 'Held Deposit Amount'}
+          value={formatUSD(totalDepositsHeld)}
+          subValue={`@ $3.00/ធុង`}
+          icon={DollarSign}
+          iconColor="text-blue-600"
+          iconBg="bg-blue-50 border-blue-100"
+          change={{
+            value: 'Reserve',
+            trend: 'neutral',
+            label: lang === 'km' ? 'បម្រុងសងវិញ' : 'refundable cash reserve',
+          }}
+          badge="Deposit"
+          badgeColor="bg-blue-50 text-blue-700"
+        />
 
-        {/* Cash Deposit Vault */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <span className="text-xs font-semibold text-slate-500 block">
-            {t.bottles.totalDepositsHeld}
-          </span>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="text-2xl font-black text-blue-700">
-              {formatUSD(totalDepositsHeld)}
-            </span>
-            <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700">
-              Vault
-            </span>
-          </div>
-          <p className="text-[11px] text-slate-400 mt-1">
-            {lang === 'km' ? 'កាតព្វកិច្ចសងត្រឡប់វិញ' : 'Refundable liability in bank'}
-          </p>
-        </div>
+        {/* 4. សរុបចរន្ត (Total in Circulation) */}
+        <MetricCard
+          title={lang === 'km' ? 'ធុងចរន្តសរុប (Circulation)' : 'Total in Circulation'}
+          value={`${totalCirculation.toLocaleString()} ធុង`}
+          subValue={lang === 'km' ? 'ទ្រព្យសកម្មសរុប' : 'Total 20L asset'}
+          icon={Package}
+          iconColor="text-sky-600"
+          iconBg="bg-sky-50 border-sky-100"
+          change={{
+            value: '100% Asset',
+            trend: 'up',
+            label: lang === 'km' ? 'ត្រួតពិនិត្យរួច' : 'accounted for',
+          }}
+          badge="Asset"
+          badgeColor="bg-sky-50 text-sky-700"
+        />
       </div>
 
       {/* Customer Balances Quick Grid */}
       <div className="rounded-2xl border border-slate-200 bg-white p-4 md:p-5 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-slate-800 text-sm md:text-base flex items-center gap-2">
-            <Building2 className="h-4 w-4 text-blue-600" />
+            <Building2 className="h-4 w-4 text-sky-600" />
             {lang === 'km' ? 'សមតុល្យធុងតាមអតិថិជន' : 'Customer Bottle & Deposit Ledger Balance'}
           </h3>
           {/* Customer filter */}
@@ -217,22 +214,22 @@ export default function BottleLedgerView() {
           </div>
         </div>
 
-        {/* Customer Mini Cards */}
+        {/* Customer Mini Cards with Visual Bottle Indicators */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
           {customers.map((cust) => (
             <div
               key={cust.id}
-              className={`rounded-xl border p-3.5 transition-all ${
+              className={`rounded-2xl border p-4 transition-all ${
                 selectedCustomerId === cust.id
-                  ? 'border-blue-600 bg-blue-50/50 shadow-sm'
-                  : 'border-slate-200 bg-slate-50/50 hover:bg-white'
+                  ? 'border-sky-600 bg-sky-50/40 shadow-sm ring-1 ring-sky-500/20'
+                  : 'border-slate-200/80 bg-white hover:border-slate-300 hover:shadow-xs'
               }`}
             >
               <div className="flex justify-between items-start">
                 <span className="font-bold text-slate-900 text-xs truncate max-w-[150px]">
                   {cust.name}
                 </span>
-                <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-700">
+                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-700">
                   {cust.price_tier}
                 </span>
               </div>
@@ -240,16 +237,13 @@ export default function BottleLedgerView() {
                 {cust.business_name || cust.phone}
               </p>
 
-              <div className="mt-3 pt-2 border-t border-slate-200/60 grid grid-cols-2 gap-2 text-[11px]">
-                <div>
-                  <span className="text-slate-400 block">{t.pos.bottlesHeld}:</span>
-                  <span className="font-bold text-amber-700">
-                    {cust.empty_bottles_held} ធុង
+              {/* Visual Bottle Indicator (as requested in Section 3.C) */}
+              <div className="mt-3 rounded-xl bg-slate-50 border border-slate-100 p-2.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="inline-flex items-center gap-1 font-bold text-sky-700">
+                    <span className="text-base">💧</span> x {cust.empty_bottles_held} Gallons Out
                   </span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block">Deposit:</span>
-                  <span className="font-bold text-blue-700">
+                  <span className="text-[11px] font-mono font-bold text-slate-700">
                     {formatUSD(cust.deposit_balance)}
                   </span>
                 </div>

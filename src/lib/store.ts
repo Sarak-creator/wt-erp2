@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Customer, InventoryItem, Order, UserRole, BottleLedger, ProductionBatch } from '@/types/database';
+import { Customer, InventoryItem, Order, UserRole, BottleLedger, ProductionBatch, Expense } from '@/types/database';
 import { Language, translations } from './i18n';
 import { createClient } from '@/utils/supabase/client';
 
@@ -55,6 +55,10 @@ interface AppState {
   // Production Batches
   batches: ProductionBatch[];
   addBatch: (batch: ProductionBatch) => void;
+
+  // Expenses & Cost Accounting
+  expenses: Expense[];
+  addExpense: (expense: Expense) => void;
 }
 
 // Initial fallback sample data (if Supabase is not yet populated)
@@ -351,7 +355,37 @@ const initialBatches: ProductionBatch[] = [
   },
 ];
 
-export const useAppStore = create<AppState>((set, get) => ({
+const initialExpenses: Expense[] = [
+  {
+    id: 'exp-1',
+    expense_number: 'EXP-2026-001',
+    category: 'ភ្លើង & ថាមពល',
+    amount: 145.0,
+    description: 'ថ្លៃអគ្គិសនីសម្រាប់ម៉ាស៊ីនចម្រោះ RO & Ozone ខែតុលា',
+    expense_date: new Date().toISOString().split('T')[0],
+    created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+  },
+  {
+    id: 'exp-2',
+    expense_number: 'EXP-2026-002',
+    category: 'ប្រេងឥន្ធនៈដឹកជញ្ជូន',
+    amount: 65.0,
+    description: 'ប្រេងម៉ាស៊ូតរថយន្តដឹកជញ្ជូន ស្លាកលេខ ភ្នំពេញ 2AY-9988',
+    expense_date: new Date().toISOString().split('T')[0],
+    created_at: new Date(Date.now() - 86400000).toISOString(),
+  },
+  {
+    id: 'exp-3',
+    expense_number: 'EXP-2026-003',
+    category: 'ថ្លៃជួសជុល & គ្រឿងបន្លាស់',
+    amount: 80.0,
+    description: 'ប្តូរស្នូលចម្រោះ Sediment 5 Micron & Carbon Block',
+    expense_date: new Date().toISOString().split('T')[0],
+    created_at: new Date().toISOString(),
+  },
+];
+
+export const useAppStore = create<AppState>()((set, get) => ({
   lang: 'km',
   setLang: (lang) => set({ lang }),
   currentRole: 'admin',
@@ -379,6 +413,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   orders: initialOrders,
   bottleLedger: initialBottleLedger,
   batches: initialBatches,
+  expenses: initialExpenses,
 
   // Live Supabase Fetcher
   fetchFromSupabase: async () => {
@@ -658,6 +693,24 @@ export const useAppStore = create<AppState>((set, get) => ({
         tds_level: batch.tds_level,
         qc_passed: batch.qc_passed,
         notes: batch.notes,
+      });
+    } catch {}
+  },
+
+  addExpense: async (expense) => {
+    set((state) => ({
+      expenses: [expense, ...state.expenses],
+    }));
+
+    try {
+      const supabase = createClient();
+      await supabase.from('expenses').insert({
+        expense_number: expense.expense_number,
+        category: expense.category,
+        amount: expense.amount,
+        description: expense.description,
+        receipt_url: expense.receipt_url,
+        expense_date: expense.expense_date,
       });
     } catch {}
   },
