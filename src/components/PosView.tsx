@@ -79,7 +79,7 @@ export default function PosView() {
         (item.name_kh && item.name_kh.includes(searchTerm)))
   );
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     setErrorMessage(null);
 
     if (cart.length === 0) {
@@ -100,7 +100,6 @@ export default function PosView() {
     // Process checkout
     const invoiceNumber = 'INV-' + Math.floor(100000 + Math.random() * 900000);
     const orderData = {
-      id: 'ord-' + Date.now(),
       invoice_number: invoiceNumber,
       customer_id: selectedCustomer.id,
       status: 'delivered' as const,
@@ -115,15 +114,13 @@ export default function PosView() {
       deposit_charge: totalDeposit,
       deposit_refund: 0,
       delivery_date: new Date().toISOString().split('T')[0],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     };
 
-    addOrder(orderData);
+    const createdOrder = await addOrder(orderData);
 
     // Update customer balance & bottle count
     const balanceDelta = paymentMethod === 'credit' ? grandTotal : 0;
-    updateCustomerBalance(
+    await updateCustomerBalance(
       selectedCustomer.id,
       balanceDelta,
       depositBottlesCount,
@@ -132,9 +129,9 @@ export default function PosView() {
 
     // If bottles were issued, add to bottle ledger
     if (depositBottlesCount > 0) {
-      addBottleMovement({
+      await addBottleMovement({
         customer_id: selectedCustomer.id,
-        order_id: orderData.id,
+        order_id: createdOrder?.id,
         bottles_out: depositBottlesCount,
         bottles_in: 0,
         deposit_collected: totalDeposit,

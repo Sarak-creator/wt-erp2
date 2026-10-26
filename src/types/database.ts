@@ -178,3 +178,68 @@ export interface TruckInventory {
   notes?: string;
   created_at: string;
 }
+
+export interface Employee {
+  id: string;
+  name: string;
+  role: 'driver' | 'operator' | 'manager' | 'cashier' | 'admin';
+  phone?: string;
+  email?: string;
+  salary_type: 'monthly' | 'daily' | 'commission';
+  base_salary: number;
+  commission_rate: number;
+  status: 'active' | 'inactive' | 'on_leave';
+  hired_date?: string;
+  notes?: string;
+  created_at?: string;
+}
+
+export interface Purchase {
+  id: string;
+  purchase_number: string;
+  supplier_name: string;
+  supplier_phone?: string;
+  status: 'pending' | 'received' | 'cancelled';
+  total_amount: number;
+  paid_amount: number;
+  payment_status: 'paid' | 'partial' | 'unpaid';
+  payment_method: string;
+  purchase_date: string;
+  notes?: string;
+  created_at?: string;
+}
+
+export interface PurchaseItem {
+  id: string;
+  purchase_id: string;
+  inventory_item_id?: string;
+  item_name: string;
+  quantity: number;
+  unit_cost: number;
+  total_cost: number;
+  created_at?: string;
+}
+
+export interface CustomerDebt {
+  id: string;
+  customer_id: string;
+  order_id?: string;
+  amount: number;
+  type: 'charge' | 'payment';
+  payment_method?: string;
+  reference_no?: string;
+  balance_after: number;
+  notes?: string;
+  created_at?: string;
+}
+
+export interface CompanySettings {
+  name: string;
+  name_kh: string;
+  phone: string;
+  address: string;
+  currency: string;
+  khmer_rate: number;
+  bottle_deposit_rate: number;
+}
+

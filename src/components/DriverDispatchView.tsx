@@ -38,7 +38,7 @@ export default function DriverDispatchView() {
   // Filter orders for delivery
   const dispatchList = orders.filter((o) => o.status !== 'cancelled');
 
-  // Truck bottle reconciliation calculation
+  // Truck bottle reconciliation calculation directly from Supabase orders
   const totalDeliveredOnTruck = orders
     .filter((o) => o.status === 'delivered')
     .reduce((acc, o) => acc + (o.bottles_delivered || 0), 0);
@@ -47,13 +47,15 @@ export default function DriverDispatchView() {
     .filter((o) => o.status === 'delivered')
     .reduce((acc, o) => acc + (o.bottles_returned || 0), 0);
 
-  const vanOpeningFull = 120; // 120 gallons loaded on truck in morning
-  const currentFullOnTruck = Math.max(0, vanOpeningFull - totalDeliveredOnTruck);
+  const pendingOrders = orders.filter((o) => o.status !== 'delivered' && o.status !== 'cancelled');
+  const pendingDeliveryBottles = pendingOrders.reduce((acc, o) => acc + (o.bottles_delivered || 0), 0);
+  const vanOpeningFull = totalDeliveredOnTruck + pendingDeliveryBottles;
+  const currentFullOnTruck = pendingDeliveryBottles;
 
   const handleOpenConfirmModal = (order: Order) => {
     setSelectedOrder(order);
-    setDeliveredCount(order.bottles_delivered || 10);
-    setReturnedEmpties(order.bottles_returned || 10);
+    setDeliveredCount(order.bottles_delivered || 0);
+    setReturnedEmpties(order.bottles_returned || 0);
     setPodPhotoUploaded(false);
     setPodSigned(false);
   };

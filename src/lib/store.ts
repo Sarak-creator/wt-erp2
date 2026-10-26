@@ -1,7 +1,20 @@
 import { create } from 'zustand';
-import { Customer, InventoryItem, Order, UserRole, BottleLedger, ProductionBatch, Expense } from '@/types/database';
-import { Language, translations } from './i18n';
-import { createClient } from '@/utils/supabase/client';
+import {
+  Customer,
+  InventoryItem,
+  Order,
+  UserRole,
+  BottleLedger,
+  ProductionBatch,
+  Expense,
+  BomRecipe,
+  DeliveryZone,
+  Employee,
+  Purchase,
+  CustomerDebt,
+  CompanySettings,
+} from '@/types/database';
+import { Language } from './i18n';
 
 export interface CartItem {
   item: InventoryItem;
@@ -9,6 +22,16 @@ export interface CartItem {
   unitPrice: number;
   lineTotal: number;
 }
+
+const defaultCompanySettings: CompanySettings = {
+  name: 'Water Pure ERP',
+  name_kh: 'រោងចក្រទឹកបរិសុទ្ធ វ៉ធើ ព្យួរ',
+  phone: '012 345 678',
+  address: 'Phnom Penh, Cambodia',
+  currency: 'USD',
+  khmer_rate: 4100,
+  bottle_deposit_rate: 3.0,
+};
 
 interface AppState {
   // Locale & RBAC
@@ -23,18 +46,33 @@ interface AppState {
   syncError: string | null;
   fetchFromSupabase: () => Promise<void>;
 
-  // Customers
+  // Settings & System
+  companySettings: CompanySettings;
+  updateCompanySettings: (settings: Partial<CompanySettings>) => Promise<void>;
+  deliveryZones: DeliveryZone[];
+  bomRecipes: BomRecipe[];
+
+  // 1. Customers
   customers: Customer[];
   selectedCustomerId: string | null;
   setSelectedCustomerId: (id: string | null) => void;
-  updateCustomerBalance: (customerId: string, balanceDelta: number, bottleDelta: number, depositDelta: number) => void;
+  addCustomer: (cust: Omit<Customer, 'id' | 'created_at' | 'updated_at'>) => Promise<Customer | null>;
+  updateCustomer: (id: string, updates: Partial<Customer>) => Promise<Customer | null>;
+  updateCustomerBalance: (
+    customerId: string,
+    balanceDelta: number,
+    bottleDelta: number,
+    depositDelta: number
+  ) => Promise<void>;
 
-  // Inventory
+  // 2. Products & Stock Inventory
   inventory: InventoryItem[];
-  deductInventory: (sku: string, quantity: number) => void;
-  addInventory: (sku: string, quantity: number) => void;
+  addInventoryItem: (item: Omit<InventoryItem, 'id' | 'created_at' | 'updated_at'>) => Promise<InventoryItem | null>;
+  updateInventoryItem: (id: string, updates: Partial<InventoryItem>) => Promise<InventoryItem | null>;
+  deductInventory: (sku: string, quantity: number) => Promise<void>;
+  addInventory: (sku: string, quantity: number) => Promise<void>;
 
-  // POS & Cart
+  // 3. POS & Cart
   cart: CartItem[];
   addToCart: (item: InventoryItem, qty?: number) => void;
   removeFromCart: (itemId: string) => void;
@@ -43,675 +81,632 @@ interface AppState {
   depositBottlesCount: number;
   setDepositBottlesCount: (count: number) => void;
 
-  // Orders
+  // 4. Orders
   orders: Order[];
-  updateOrderStatus: (orderId: string, status: Order['status'], proofUrl?: string, bottlesDelivered?: number, bottlesReturned?: number) => void;
-  addOrder: (order: Order) => void;
+  addOrder: (order: Omit<Order, 'id' | 'created_at' | 'updated_at'> & { id?: string }) => Promise<Order | null>;
+  updateOrderStatus: (
+    orderId: string,
+    status: Order['status'],
+    proofUrl?: string,
+    bottlesDelivered?: number,
+    bottlesReturned?: number
+  ) => Promise<void>;
 
-  // Bottle Ledger
+  // 5. Bottle Ledger
   bottleLedger: BottleLedger[];
-  addBottleMovement: (entry: Omit<BottleLedger, 'id' | 'created_at'>) => void;
+  addBottleMovement: (entry: Omit<BottleLedger, 'id' | 'created_at'>) => Promise<BottleLedger | null>;
 
-  // Production Batches
-  batches: ProductionBatch[];
-  addBatch: (batch: ProductionBatch) => void;
+  // 6. Employees / Employers
+  employees: Employee[];
+  addEmployee: (emp: Omit<Employee, 'id' | 'created_at'>) => Promise<Employee | null>;
+  updateEmployee: (id: string, updates: Partial<Employee>) => Promise<Employee | null>;
 
-  // Expenses & Cost Accounting
+  // 7. Costs / Expenses
   expenses: Expense[];
-  addExpense: (expense: Expense) => void;
+  addExpense: (expense: Omit<Expense, 'id' | 'created_at'> & { id?: string }) => Promise<Expense | null>;
+
+  // 8. Purchases (Procurement)
+  purchases: Purchase[];
+  addPurchase: (
+    purchase: Omit<Purchase, 'id' | 'created_at' | 'updated_at'>,
+    items: Array<{ inventory_item_id: string; quantity: number; unit_cost: number }>
+  ) => Promise<Purchase | null>;
+
+  // 9. Debts
+  customerDebts: CustomerDebt[];
+  addDebtPayment: (
+    customerId: string,
+    amount: number,
+    paymentMethod: string,
+    notes?: string
+  ) => Promise<CustomerDebt | null>;
+
+  // 10. Production Batches
+  batches: ProductionBatch[];
+  addBatch: (batch: Omit<ProductionBatch, 'id' | 'produced_at'> & { id?: string }) => Promise<ProductionBatch | null>;
 }
 
-// Initial fallback sample data (if Supabase is not yet populated)
-const initialCustomers: Customer[] = [
-  {
-    id: 'c1',
-    name: 'លោក សុខ ចិន្តា',
-    business_name: 'ហាងកាហ្វេ អាម៉ាហ្សូន បឹងកេងកង',
-    phone: '012 889 977',
-    address: 'ផ្លូវ 302, សង្កាត់បឹងកេងកង១, ខណ្ឌចំការមន',
-    zone_id: 'z1',
-    price_tier: 'wholesale',
-    credit_limit: 200.0,
-    current_balance: 35.0,
-    deposit_balance: 60.0,
-    empty_bottles_held: 20,
-    active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: 'c2',
-    name: 'អ្នកស្រី គង់ ម៉ាលី',
-    business_name: 'សាលារៀន អន្តរជាតិ វឌ្ឍនៈ',
-    phone: '015 677 822',
-    address: 'ផ្លូវ 598, សង្កាត់បឹងកក់២, ខណ្ឌទួលគោក',
-    zone_id: 'z2',
-    price_tier: 'subscription',
-    credit_limit: 500.0,
-    current_balance: 480.0,
-    deposit_balance: 150.0,
-    empty_bottles_held: 50,
-    active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: 'c3',
-    name: 'លោក ចាន់ រតនា',
-    business_name: 'ការដ្ឋានសំណង់ ជីប ម៉ុង',
-    phone: '098 443 211',
-    address: 'ផ្លូវជាតិលេខ១, សង្កាត់ច្បារអំពៅ១, ខណ្ឌច្បារអំពៅ',
-    zone_id: 'z3',
-    price_tier: 'wholesale',
-    credit_limit: 300.0,
-    current_balance: 310.0,
-    deposit_balance: 90.0,
-    empty_bottles_held: 30,
-    active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: 'c4',
-    name: 'អ្នកស្រី ហេង ធីតា',
-    business_name: 'ផ្ទះលេខ ៤៥A (ផ្ទាល់ខ្លួន)',
-    phone: '089 112 344',
-    address: 'ផ្លូវ 271, សង្កាត់ទឹកថ្លា, ខណ្ឌសែនសុខ',
-    zone_id: 'z4',
-    price_tier: 'retail',
-    credit_limit: 50.0,
-    current_balance: 0.0,
-    deposit_balance: 15.0,
-    empty_bottles_held: 5,
-    active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-];
-
-const initialInventory: InventoryItem[] = [
-  {
-    id: 'inv1',
-    sku: 'FG-GAL-20L',
-    name: '20L Pure Water Gallon',
-    name_kh: 'ទឹកបរិសុទ្ធ ២០ លីត្រ',
-    type: 'finished_good',
-    unit: 'gallon',
-    qty_on_hand: 850,
-    unit_cost: 0.45,
-    retail_price: 1.25,
-    wholesale_price: 0.9,
-    reorder_level: 100,
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: 'inv2',
-    sku: 'FG-BOT-500ML',
-    name: '500ml Bottled Water (Pack 24)',
-    name_kh: 'ទឹកដប ៥០០មល (កេស ២៤)',
-    type: 'finished_good',
-    unit: 'box',
-    qty_on_hand: 320,
-    unit_cost: 1.8,
-    retail_price: 3.5,
-    wholesale_price: 2.75,
-    reorder_level: 50,
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: 'inv3',
-    sku: 'FG-BOT-350ML',
-    name: '350ml Bottled Water (Pack 24)',
-    name_kh: 'ទឹកដប ៣៥០មល (កេស ២៤)',
-    type: 'finished_good',
-    unit: 'box',
-    qty_on_hand: 210,
-    unit_cost: 1.5,
-    retail_price: 3.0,
-    wholesale_price: 2.4,
-    reorder_level: 40,
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: 'inv4',
-    sku: 'AST-EMPTY-20L',
-    name: 'Returnable Empty 20L Gallon',
-    name_kh: 'សំបកធុងទទេ ២០ លីត្រ',
-    type: 'asset',
-    unit: 'gallon',
-    qty_on_hand: 1400,
-    unit_cost: 3.5,
-    retail_price: 3.0,
-    wholesale_price: 3.0,
-    reorder_level: 300,
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: 'inv5',
-    sku: 'PKG-CAP-20L',
-    name: '20L Bottle Cap (Blue)',
-    name_kh: 'គម្របធុង ២០លីត្រ',
-    type: 'packaging',
-    unit: 'piece',
-    qty_on_hand: 12500,
-    unit_cost: 0.04,
-    retail_price: 0.0,
-    wholesale_price: 0.0,
-    reorder_level: 2000,
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: 'inv6',
-    sku: 'PKG-SEAL-20L',
-    name: '20L Heat Shrink Neck Seal',
-    name_kh: 'ស្កុតកម្ដៅបិទគម្រប',
-    type: 'packaging',
-    unit: 'piece',
-    qty_on_hand: 16000,
-    unit_cost: 0.015,
-    retail_price: 0.0,
-    wholesale_price: 0.0,
-    reorder_level: 3000,
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-];
-
-const initialOrders: Order[] = [
-  {
-    id: 'ord-101',
-    invoice_number: 'INV-2026-001',
-    customer_id: 'c1',
-    status: 'dispatched',
-    payment_status: 'unpaid',
-    payment_method: 'cash',
-    subtotal: 18.0,
-    discount: 0,
-    total_amount: 18.0,
-    paid_amount: 0,
-    bottles_delivered: 20,
-    bottles_returned: 18,
-    deposit_charge: 6.0,
-    deposit_refund: 0,
-    delivery_date: new Date().toISOString().split('T')[0],
-    created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: 'ord-102',
-    invoice_number: 'INV-2026-002',
-    customer_id: 'c2',
-    status: 'dispatched',
-    payment_status: 'unpaid',
-    payment_method: 'credit',
-    subtotal: 45.0,
-    discount: 0,
-    total_amount: 45.0,
-    paid_amount: 0,
-    bottles_delivered: 50,
-    bottles_returned: 45,
-    deposit_charge: 15.0,
-    deposit_refund: 0,
-    delivery_date: new Date().toISOString().split('T')[0],
-    created_at: new Date(Date.now() - 3600000 * 4).toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: 'ord-103',
-    invoice_number: 'INV-2026-003',
-    customer_id: 'c4',
-    status: 'delivered',
-    payment_status: 'paid',
-    payment_method: 'khqr',
-    subtotal: 6.25,
-    discount: 0,
-    total_amount: 6.25,
-    paid_amount: 6.25,
-    bottles_delivered: 5,
-    bottles_returned: 5,
-    deposit_charge: 0,
-    deposit_refund: 0,
-    delivery_date: new Date().toISOString().split('T')[0],
-    delivered_at: new Date(Date.now() - 3600000).toISOString(),
-    created_at: new Date(Date.now() - 3600000 * 5).toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-];
-
-const initialBottleLedger: BottleLedger[] = [
-  {
-    id: 'bl-1',
-    customer_id: 'c1',
-    order_id: 'ord-101',
-    bottles_out: 20,
-    bottles_in: 18,
-    deposit_collected: 6.0,
-    deposit_refunded: 0,
-    breakage_qty: 0,
-    notes: '2 bottles extra kept by customer',
-    created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
-  },
-  {
-    id: 'bl-2',
-    customer_id: 'c2',
-    order_id: 'ord-102',
-    bottles_out: 50,
-    bottles_in: 45,
-    deposit_collected: 15.0,
-    deposit_refunded: 0,
-    breakage_qty: 1,
-    notes: '1 bottle broken on site (written off)',
-    created_at: new Date(Date.now() - 3600000 * 4).toISOString(),
-  },
-  {
-    id: 'bl-3',
-    customer_id: 'c4',
-    order_id: 'ord-103',
-    bottles_out: 5,
-    bottles_in: 5,
-    deposit_collected: 0,
-    deposit_refunded: 0,
-    breakage_qty: 0,
-    notes: 'Even exchange 5 in / 5 out',
-    created_at: new Date(Date.now() - 3600000 * 5).toISOString(),
-  },
-];
-
-const initialBatches: ProductionBatch[] = [
-  {
-    id: 'b-001',
-    batch_number: 'LOT-20261025-A',
-    finished_good_id: 'inv1',
-    target_qty: 500,
-    actual_qty: 500,
-    ph_level: 7.2,
-    tds_level: 18.0,
-    qc_passed: true,
-    notes: 'Ozone sterilization active. Reverse Osmosis 4-stage passed.',
-    produced_at: new Date().toISOString(),
-  },
-  {
-    id: 'b-002',
-    batch_number: 'LOT-20261024-B',
-    finished_good_id: 'inv2',
-    target_qty: 200,
-    actual_qty: 198,
-    ph_level: 7.1,
-    tds_level: 16.5,
-    qc_passed: true,
-    notes: '2 bottles rejected due to cap seal misalignment.',
-    produced_at: new Date(Date.now() - 86400000).toISOString(),
-  },
-];
-
-const initialExpenses: Expense[] = [
-  {
-    id: 'exp-1',
-    expense_number: 'EXP-2026-001',
-    category: 'ភ្លើង & ថាមពល',
-    amount: 145.0,
-    description: 'ថ្លៃអគ្គិសនីសម្រាប់ម៉ាស៊ីនចម្រោះ RO & Ozone ខែតុលា',
-    expense_date: new Date().toISOString().split('T')[0],
-    created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-  },
-  {
-    id: 'exp-2',
-    expense_number: 'EXP-2026-002',
-    category: 'ប្រេងឥន្ធនៈដឹកជញ្ជូន',
-    amount: 65.0,
-    description: 'ប្រេងម៉ាស៊ូតរថយន្តដឹកជញ្ជូន ស្លាកលេខ ភ្នំពេញ 2AY-9988',
-    expense_date: new Date().toISOString().split('T')[0],
-    created_at: new Date(Date.now() - 86400000).toISOString(),
-  },
-  {
-    id: 'exp-3',
-    expense_number: 'EXP-2026-003',
-    category: 'ថ្លៃជួសជុល & គ្រឿងបន្លាស់',
-    amount: 80.0,
-    description: 'ប្តូរស្នូលចម្រោះ Sediment 5 Micron & Carbon Block',
-    expense_date: new Date().toISOString().split('T')[0],
-    created_at: new Date().toISOString(),
-  },
-];
-
 export const useAppStore = create<AppState>()((set, get) => ({
+  // Locale & Role
   lang: 'km',
   setLang: (lang) => set({ lang }),
   currentRole: 'admin',
   setCurrentRole: (currentRole) => set({ currentRole }),
 
+  // Status - Strictly connected to Supabase
   isSyncing: false,
   supabaseConnected: false,
   syncError: null,
 
-  customers: initialCustomers,
-  selectedCustomerId: 'c1',
+  // Datasets initialized strictly empty (hydrated directly from Supabase)
+  companySettings: defaultCompanySettings,
+  deliveryZones: [],
+  bomRecipes: [],
+  customers: [],
+  selectedCustomerId: null,
   setSelectedCustomerId: (id) => set({ selectedCustomerId: id }),
 
-  inventory: initialInventory,
-  cart: [
-    {
-      item: initialInventory[0],
-      quantity: 10,
-      unitPrice: initialInventory[0].wholesale_price,
-      lineTotal: 10 * initialInventory[0].wholesale_price,
-    },
-  ],
+  inventory: [],
+  cart: [],
   depositBottlesCount: 0,
   setDepositBottlesCount: (depositBottlesCount) => set({ depositBottlesCount }),
-  orders: initialOrders,
-  bottleLedger: initialBottleLedger,
-  batches: initialBatches,
-  expenses: initialExpenses,
 
-  // Live Supabase Fetcher
+  orders: [],
+  bottleLedger: [],
+  employees: [],
+  expenses: [],
+  purchases: [],
+  customerDebts: [],
+  batches: [],
+
+  // Live Supabase Fetcher: fetches all real data directly from Supabase
   fetchFromSupabase: async () => {
     set({ isSyncing: true, syncError: null });
     try {
-      const supabase = createClient();
+      const apiRes = await fetch('/api/data', { cache: 'no-store' });
+      if (apiRes.ok) {
+        const json = await apiRes.json();
+        if (json.success && json.data) {
+          const loadedCustomers: Customer[] = json.data.customers || [];
+          const currentSelected = get().selectedCustomerId;
+          const selectedCustomerId =
+            currentSelected && loadedCustomers.some((c) => c.id === currentSelected)
+              ? currentSelected
+              : loadedCustomers.length > 0
+              ? loadedCustomers[0].id
+              : null;
 
-      // 1. Fetch Customers
-      const { data: custData, error: custErr } = await supabase
-        .from('customers')
-        .select('*')
-        .order('created_at', { ascending: false });
+          const savedSettings = json.data.settings?.company_profile || defaultCompanySettings;
 
-      // 2. Fetch Inventory
-      const { data: invData, error: invErr } = await supabase
-        .from('inventory_items')
-        .select('*')
-        .order('type');
-
-      // 3. Fetch Orders
-      const { data: ordData, error: ordErr } = await supabase
-        .from('orders')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      // 4. Fetch Bottle Ledger
-      const { data: blData, error: blErr } = await supabase
-        .from('bottle_ledger')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      // 5. Fetch Production Batches
-      const { data: batchData, error: batchErr } = await supabase
-        .from('production_batches')
-        .select('*')
-        .order('produced_at', { ascending: false });
-
-      const hasSupabaseData =
-        (custData && custData.length > 0) ||
-        (invData && invData.length > 0) ||
-        (ordData && ordData.length > 0);
-
-      if (hasSupabaseData) {
-        set({
-          supabaseConnected: true,
-          isSyncing: false,
-          customers: custData && custData.length > 0 ? (custData as Customer[]) : get().customers,
-          selectedCustomerId: custData && custData.length > 0 ? custData[0].id : get().selectedCustomerId,
-          inventory: invData && invData.length > 0 ? (invData as InventoryItem[]) : get().inventory,
-          orders: ordData && ordData.length > 0 ? (ordData as Order[]) : get().orders,
-          bottleLedger: blData && blData.length > 0 ? (blData as BottleLedger[]) : get().bottleLedger,
-          batches: batchData && batchData.length > 0 ? (batchData as ProductionBatch[]) : get().batches,
-        });
-      } else {
-        // If query succeeded but tables are empty, mark connected
-        if (!custErr && !invErr) {
-          set({ supabaseConnected: true, isSyncing: false });
-        } else {
           set({
+            supabaseConnected: true,
             isSyncing: false,
-            syncError: custErr?.message || invErr?.message || 'Using local demo data',
+            syncError: null,
+            customers: loadedCustomers,
+            selectedCustomerId,
+            inventory: json.data.inventory || [],
+            orders: json.data.orders || [],
+            bottleLedger: json.data.bottleLedger || [],
+            batches: json.data.batches || [],
+            expenses: json.data.expenses || [],
+            bomRecipes: json.data.bomRecipes || [],
+            deliveryZones: json.data.deliveryZones || [],
+            employees: json.data.employees || [],
+            purchases: json.data.purchases || [],
+            customerDebts: json.data.customerDebts || [],
+            companySettings: savedSettings,
           });
+          return;
         }
       }
+      throw new Error('Supabase /api/data returned non-ok status');
     } catch (err: any) {
+      console.error('Supabase sync error:', err);
       set({
+        supabaseConnected: false,
         isSyncing: false,
-        syncError: err?.message || 'Unable to connect to Supabase, using local fallback.',
+        syncError: err?.message || 'Error connecting to Supabase database',
       });
     }
   },
 
+  // 1. Customer Operations
+  addCustomer: async (custData) => {
+    try {
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'add_customer', payload: custData }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          const newCustomer: Customer = json.data;
+          set((state) => ({ customers: [newCustomer, ...state.customers] }));
+          return newCustomer;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to add customer to Supabase:', e);
+    }
+    return null;
+  },
+
+  updateCustomer: async (id, updates) => {
+    try {
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'update_customer', payload: { id, ...updates } }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          const updated: Customer = json.data;
+          set((state) => ({
+            customers: state.customers.map((c) => (c.id === id ? { ...c, ...updated } : c)),
+          }));
+          return updated;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to update customer in Supabase:', e);
+    }
+    return null;
+  },
+
   updateCustomerBalance: async (customerId, balanceDelta, bottleDelta, depositDelta) => {
+    const cust = get().customers.find((c) => c.id === customerId);
+    if (!cust) return;
+
+    const newBalance = Math.max(0, cust.current_balance + balanceDelta);
+    const newBottles = Math.max(0, cust.empty_bottles_held + bottleDelta);
+    const newDeposit = Math.max(0, cust.deposit_balance + depositDelta);
+
     set((state) => ({
       customers: state.customers.map((c) =>
         c.id === customerId
           ? {
               ...c,
-              current_balance: Math.max(0, c.current_balance + balanceDelta),
-              empty_bottles_held: Math.max(0, c.empty_bottles_held + bottleDelta),
-              deposit_balance: Math.max(0, c.deposit_balance + depositDelta),
+              current_balance: newBalance,
+              empty_bottles_held: newBottles,
+              deposit_balance: newDeposit,
             }
           : c
       ),
     }));
 
-    // Sync to Supabase
     try {
-      const supabase = createClient();
-      const currentCust = get().customers.find((c) => c.id === customerId);
-      if (currentCust) {
-        await supabase
-          .from('customers')
-          .update({
-            current_balance: currentCust.current_balance,
-            empty_bottles_held: currentCust.empty_bottles_held,
-            deposit_balance: currentCust.deposit_balance,
-          })
-          .eq('id', customerId);
-      }
-    } catch {
-      // offline fallback
+      await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_customer_balance',
+          payload: {
+            customerId,
+            current_balance: newBalance,
+            empty_bottles_held: newBottles,
+            deposit_balance: newDeposit,
+          },
+        }),
+      });
+    } catch (e) {
+      console.error('Failed to sync customer balance with Supabase:', e);
     }
   },
 
+  // 2. Inventory & Product Operations
+  addInventoryItem: async (itemData) => {
+    try {
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'add_inventory_item', payload: itemData }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          const newItem: InventoryItem = json.data;
+          set((state) => ({ inventory: [newItem, ...state.inventory] }));
+          return newItem;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to add inventory item to Supabase:', e);
+    }
+    return null;
+  },
+
+  updateInventoryItem: async (id, updates) => {
+    try {
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'update_inventory_item', payload: { id, ...updates } }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          const updated: InventoryItem = json.data;
+          set((state) => ({
+            inventory: state.inventory.map((item) => (item.id === id ? { ...item, ...updated } : item)),
+          }));
+          return updated;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to update inventory item in Supabase:', e);
+    }
+    return null;
+  },
+
   deductInventory: async (sku, quantity) => {
+    const item = get().inventory.find((i) => i.sku === sku);
+    if (!item) return;
+    const newQty = Math.max(0, item.qty_on_hand - quantity);
+
     set((state) => ({
-      inventory: state.inventory.map((item) =>
-        item.sku === sku ? { ...item, qty_on_hand: Math.max(0, item.qty_on_hand - quantity) } : item
-      ),
+      inventory: state.inventory.map((i) => (i.sku === sku ? { ...i, qty_on_hand: newQty } : i)),
     }));
 
     try {
-      const supabase = createClient();
-      const updated = get().inventory.find((i) => i.sku === sku);
-      if (updated) {
-        await supabase.from('inventory_items').update({ qty_on_hand: updated.qty_on_hand }).eq('sku', sku);
-      }
-    } catch {}
+      await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_inventory',
+          payload: { sku, qty_on_hand: newQty },
+        }),
+      });
+    } catch (e) {
+      console.error('Failed to sync inventory deduction with Supabase:', e);
+    }
   },
 
   addInventory: async (sku, quantity) => {
+    const item = get().inventory.find((i) => i.sku === sku);
+    if (!item) return;
+    const newQty = item.qty_on_hand + quantity;
+
     set((state) => ({
-      inventory: state.inventory.map((item) =>
-        item.sku === sku ? { ...item, qty_on_hand: item.qty_on_hand + quantity } : item
-      ),
+      inventory: state.inventory.map((i) => (i.sku === sku ? { ...i, qty_on_hand: newQty } : i)),
     }));
 
     try {
-      const supabase = createClient();
-      const updated = get().inventory.find((i) => i.sku === sku);
-      if (updated) {
-        await supabase.from('inventory_items').update({ qty_on_hand: updated.qty_on_hand }).eq('sku', sku);
-      }
-    } catch {}
+      await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_inventory',
+          payload: { sku, qty_on_hand: newQty },
+        }),
+      });
+    } catch (e) {
+      console.error('Failed to sync inventory addition with Supabase:', e);
+    }
   },
 
+  // 3. POS & Cart
   addToCart: (item, qty = 1) => {
-    const { cart, customers, selectedCustomerId } = get();
-    const customer = customers.find((c) => c.id === selectedCustomerId);
-    const unitPrice =
-      customer?.price_tier === 'wholesale' || customer?.price_tier === 'distributor'
-        ? item.wholesale_price
-        : item.retail_price;
+    const { cart } = get();
+    const existing = cart.find((c) => c.item.id === item.id);
+    const unitPrice = item.retail_price;
 
-    const existingIndex = cart.findIndex((ci) => ci.item.id === item.id);
-    if (existingIndex > -1) {
-      const updated = [...cart];
-      const newQty = updated[existingIndex].quantity + qty;
-      updated[existingIndex].quantity = newQty;
-      updated[existingIndex].lineTotal = newQty * unitPrice;
-      set({ cart: updated });
+    if (existing) {
+      set({
+        cart: cart.map((c) =>
+          c.item.id === item.id
+            ? {
+                ...c,
+                quantity: c.quantity + qty,
+                lineTotal: (c.quantity + qty) * unitPrice,
+              }
+            : c
+        ),
+      });
     } else {
       set({
-        cart: [...cart, { item, quantity: qty, unitPrice, lineTotal: qty * unitPrice }],
+        cart: [
+          ...cart,
+          {
+            item,
+            quantity: qty,
+            unitPrice,
+            lineTotal: qty * unitPrice,
+          },
+        ],
       });
     }
   },
 
-  removeFromCart: (itemId) =>
-    set((state) => ({
-      cart: state.cart.filter((ci) => ci.item.id !== itemId),
-    })),
+  removeFromCart: (itemId) => {
+    set({ cart: get().cart.filter((c) => c.item.id !== itemId) });
+  },
 
   updateCartQty: (itemId, qty) => {
     if (qty <= 0) {
       get().removeFromCart(itemId);
       return;
     }
-    set((state) => ({
-      cart: state.cart.map((ci) =>
-        ci.item.id === itemId
-          ? { ...ci, quantity: qty, lineTotal: qty * ci.unitPrice }
-          : ci
+    set({
+      cart: get().cart.map((c) =>
+        c.item.id === itemId
+          ? {
+              ...c,
+              quantity: qty,
+              lineTotal: qty * c.unitPrice,
+            }
+          : c
       ),
-    }));
+    });
   },
 
   clearCart: () => set({ cart: [], depositBottlesCount: 0 }),
 
-  updateOrderStatus: async (orderId, status, proofUrl, bottlesDelivered, bottlesReturned) => {
-    set((state) => ({
-      orders: state.orders.map((ord) =>
-        ord.id === orderId
-          ? {
-              ...ord,
-              status,
-              proof_of_delivery_url: proofUrl || ord.proof_of_delivery_url,
-              bottles_delivered: bottlesDelivered !== undefined ? bottlesDelivered : ord.bottles_delivered,
-              bottles_returned: bottlesReturned !== undefined ? bottlesReturned : ord.bottles_returned,
-              delivered_at: status === 'delivered' ? new Date().toISOString() : ord.delivered_at,
-            }
-          : ord
-      ),
-    }));
-
+  // 4. Orders
+  addOrder: async (orderData) => {
     try {
-      const supabase = createClient();
-      await supabase
-        .from('orders')
-        .update({
-          status,
-          proof_of_delivery_url: proofUrl,
-          bottles_delivered: bottlesDelivered,
-          bottles_returned: bottlesReturned,
-          delivered_at: status === 'delivered' ? new Date().toISOString() : undefined,
-        })
-        .eq('id', orderId);
-    } catch {}
-  },
-
-  addOrder: async (order) => {
-    set((state) => ({
-      orders: [order, ...state.orders],
-    }));
-
-    try {
-      const supabase = createClient();
-      await supabase.from('orders').insert({
-        invoice_number: order.invoice_number,
-        customer_id: order.customer_id,
-        status: order.status,
-        payment_status: order.payment_status,
-        payment_method: order.payment_method,
-        subtotal: order.subtotal,
-        discount: order.discount,
-        total_amount: order.total_amount,
-        paid_amount: order.paid_amount,
-        bottles_delivered: order.bottles_delivered,
-        bottles_returned: order.bottles_returned,
-        deposit_charge: order.deposit_charge,
-        deposit_refund: order.deposit_refund,
-        delivery_date: order.delivery_date,
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'add_order', payload: orderData }),
       });
-    } catch {}
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          const newOrder: Order = json.data;
+          set((state) => ({ orders: [newOrder, ...state.orders] }));
+          return newOrder;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to add order to Supabase:', e);
+    }
+    return null;
   },
 
-  addBottleMovement: async (entry) => {
-    const newEntry: BottleLedger = {
-      ...entry,
-      id: 'bl-' + Math.random().toString(36).substring(2, 9),
-      created_at: new Date().toISOString(),
+  updateOrderStatus: async (orderId, status, proofUrl, bottlesDelivered, bottlesReturned) => {
+    const updates: Partial<Order> = {
+      status,
+      delivered_at: status === 'delivered' ? new Date().toISOString() : undefined,
+      proof_of_delivery_url: proofUrl,
+      bottles_delivered: bottlesDelivered,
+      bottles_returned: bottlesReturned,
     };
 
     set((state) => ({
-      bottleLedger: [newEntry, ...state.bottleLedger],
+      orders: state.orders.map((o) => (o.id === orderId ? { ...o, ...updates } : o)),
     }));
 
     try {
-      const supabase = createClient();
-      await supabase.from('bottle_ledger').insert({
-        customer_id: entry.customer_id,
-        order_id: entry.order_id,
-        bottles_out: entry.bottles_out,
-        bottles_in: entry.bottles_in,
-        deposit_collected: entry.deposit_collected,
-        deposit_refunded: entry.deposit_refunded,
-        breakage_qty: entry.breakage_qty,
-        notes: entry.notes,
+      await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_order_status',
+          payload: { orderId, ...updates },
+        }),
       });
-    } catch {}
+    } catch (e) {
+      console.error('Failed to sync order status update with Supabase:', e);
+    }
   },
 
-  addBatch: async (batch) => {
-    set((state) => ({
-      batches: [batch, ...state.batches],
-    }));
-
+  // 5. Bottle Ledger
+  addBottleMovement: async (entry) => {
     try {
-      const supabase = createClient();
-      await supabase.from('production_batches').insert({
-        batch_number: batch.batch_number,
-        finished_good_id: batch.finished_good_id,
-        target_qty: batch.target_qty,
-        actual_qty: batch.actual_qty,
-        ph_level: batch.ph_level,
-        tds_level: batch.tds_level,
-        qc_passed: batch.qc_passed,
-        notes: batch.notes,
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'add_bottle_movement', payload: entry }),
       });
-    } catch {}
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          const newMovement: BottleLedger = json.data;
+          set((state) => ({ bottleLedger: [newMovement, ...state.bottleLedger] }));
+          return newMovement;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to add bottle movement to Supabase:', e);
+    }
+    return null;
   },
 
+  // 6. Employees / Employers
+  addEmployee: async (empData) => {
+    try {
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'add_employee', payload: empData }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          const newEmp: Employee = json.data;
+          set((state) => ({ employees: [newEmp, ...state.employees] }));
+          return newEmp;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to add employee to Supabase:', e);
+    }
+    return null;
+  },
+
+  updateEmployee: async (id, updates) => {
+    try {
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'update_employee', payload: { id, ...updates } }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          const updated: Employee = json.data;
+          set((state) => ({
+            employees: state.employees.map((e) => (e.id === id ? { ...e, ...updated } : e)),
+          }));
+          return updated;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to update employee in Supabase:', e);
+    }
+    return null;
+  },
+
+  // 7. Costs / Expenses
   addExpense: async (expense) => {
-    set((state) => ({
-      expenses: [expense, ...state.expenses],
-    }));
+    try {
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'add_expense', payload: expense }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          const newExpense: Expense = json.data;
+          set((state) => ({ expenses: [newExpense, ...state.expenses] }));
+          return newExpense;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to add expense to Supabase:', e);
+    }
+    return null;
+  },
+
+  // 8. Purchases & Procurement
+  addPurchase: async (purchaseData, items) => {
+    try {
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'add_purchase', payload: purchaseData }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          const newPurchase: Purchase = json.data;
+          set((state) => ({ purchases: [newPurchase, ...state.purchases] }));
+
+          // Automatically increment inventory for purchased items
+          for (const item of items) {
+            const inv = get().inventory.find((i) => i.id === item.inventory_item_id);
+            if (inv) {
+              await get().addInventory(inv.sku, Number(item.quantity));
+            }
+          }
+          return newPurchase;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to add purchase to Supabase:', e);
+    }
+    return null;
+  },
+
+  // 9. Debts & Payment Collection
+  addDebtPayment: async (customerId, amount, paymentMethod, notes) => {
+    const cust = get().customers.find((c) => c.id === customerId);
+    if (!cust) return null;
+
+    const newBalance = Math.max(0, cust.current_balance - amount);
 
     try {
-      const supabase = createClient();
-      await supabase.from('expenses').insert({
-        expense_number: expense.expense_number,
-        category: expense.category,
-        amount: expense.amount,
-        description: expense.description,
-        receipt_url: expense.receipt_url,
-        expense_date: expense.expense_date,
+      const payload = {
+        customer_id: customerId,
+        amount,
+        type: 'payment',
+        payment_method: paymentMethod,
+        balance_after: newBalance,
+        notes: notes || 'Debt payment collection',
+      };
+
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'add_debt_payment', payload }),
       });
-    } catch {}
+
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          const createdDebt: CustomerDebt = json.data;
+          set((state) => ({
+            customerDebts: [createdDebt, ...state.customerDebts],
+            customers: state.customers.map((c) =>
+              c.id === customerId ? { ...c, current_balance: newBalance } : c
+            ),
+          }));
+
+          // Sync new customer balance to Supabase
+          await fetch('/api/data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'update_customer_balance',
+              payload: {
+                customerId,
+                current_balance: newBalance,
+                empty_bottles_held: cust.empty_bottles_held,
+                deposit_balance: cust.deposit_balance,
+              },
+            }),
+          });
+
+          return createdDebt;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to record debt payment in Supabase:', e);
+    }
+    return null;
+  },
+
+  // 10. Production Batches
+  addBatch: async (batch) => {
+    try {
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'add_batch', payload: batch }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          const newBatch: ProductionBatch = json.data;
+          set((state) => ({ batches: [newBatch, ...state.batches] }));
+          return newBatch;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to add production batch to Supabase:', e);
+    }
+    return null;
+  },
+
+  // Settings
+  updateCompanySettings: async (settings) => {
+    const updated = { ...get().companySettings, ...settings };
+    set({ companySettings: updated });
+
+    try {
+      await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_settings',
+          payload: { key: 'company_profile', value: updated },
+        }),
+      });
+    } catch (e) {
+      console.error('Failed to update company settings in Supabase:', e);
+    }
   },
 }));

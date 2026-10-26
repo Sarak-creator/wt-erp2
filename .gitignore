@@ -43,3 +43,9 @@ next-env.d.ts
 
 # supabase cli temporary cache
 supabase/.temp/
+
+# local build and scratch artifacts
+/.next_build/
+scratch/
+*.tgz
+

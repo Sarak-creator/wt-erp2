@@ -54,9 +54,9 @@ export default function BottleLedgerView() {
     0
   );
   const warehouseAssetBottles =
-    inventory.find((i) => i.sku === 'AST-EMPTY-20L')?.qty_on_hand || 1400;
+    inventory.find((i) => i.sku === 'AST-EMPTY-20L')?.qty_on_hand || 0;
   const fullWarehouseGallons =
-    inventory.find((i) => i.sku === 'FG-GAL-20L')?.qty_on_hand || 850;
+    inventory.find((i) => i.sku === 'FG-GAL-20L')?.qty_on_hand || 0;
   const totalCirculation =
     totalHeldByCustomers + warehouseAssetBottles + fullWarehouseGallons;
 

@@ -38,10 +38,12 @@ export default function ManufacturingView() {
       '-' +
       Math.floor(10 + Math.random() * 90);
 
-    const newBatch: ProductionBatch = {
-      id: 'b-' + Date.now(),
+    const finishedGood = inventory.find((i) => i.sku === 'FG-GAL-20L');
+    const finishedGoodId = finishedGood ? finishedGood.id : '22222222-2222-2222-2222-222222222201';
+
+    const newBatch = {
       batch_number: batchNumber,
-      finished_good_id: 'inv1', // 20L Gallon
+      finished_good_id: finishedGoodId,
       target_qty: targetQty,
       actual_qty: actualQty,
       ph_level: phLevel,

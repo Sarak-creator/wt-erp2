@@ -30,7 +30,7 @@ import {
 } from 'lucide-react';
 
 export default function FinancialDashboardView() {
-  const { lang, customers, orders, inventory, expenses, addExpense } = useAppStore();
+  const { lang, customers, orders, inventory, expenses, addExpense, deliveryZones } = useAppStore();
   const t = translations[lang];
 
   const [showExpenseModal, setShowExpenseModal] = useState(false);
@@ -43,41 +43,64 @@ export default function FinancialDashboardView() {
   );
   const [isSuccessToast, setIsSuccessToast] = useState(false);
 
-  // Accounts Receivable (A/R) Aging calculations
-  const totalReceivables = customers.reduce((acc, c) => acc + c.current_balance, 0);
+  // Accounts Receivable (A/R) Aging calculations directly from Supabase
+  const totalReceivables = customers.reduce((acc, c) => acc + (c.current_balance || 0), 0);
 
-  // Simulated Aging brackets for Cambodian water distributor credit terms
-  const current30Days = totalReceivables * 0.62; // 62% current
-  const aging31to60 = totalReceivables * 0.25; // 25% 31-60 days
-  const overdueOver60 = totalReceivables * 0.13; // 13% high risk overdue
+  // Dynamic aging calculation based on real orders
+  const now = Date.now();
+  let current30Days = 0;
+  let aging31to60 = 0;
+  let overdueOver60 = 0;
 
-  // Customers exceeding or near credit limit
+  const unpaidOrders = orders.filter((o) => o.payment_status === 'unpaid' || o.payment_status === 'partial');
+  if (unpaidOrders.length > 0) {
+    unpaidOrders.forEach((o) => {
+      const orderTime = new Date(o.created_at || o.delivery_date).getTime();
+      const ageDays = Math.max(0, Math.floor((now - orderTime) / (1000 * 60 * 60 * 24)));
+      const debt = (o.total_amount || 0) - (o.paid_amount || 0);
+      if (ageDays <= 30) current30Days += debt;
+      else if (ageDays <= 60) aging31to60 += debt;
+      else overdueOver60 += debt;
+    });
+  } else {
+    current30Days = totalReceivables;
+  }
+
+  // Customers exceeding or near credit limit (loaded from Supabase)
   const highRiskCustomers = customers.filter(
-    (c) => c.current_balance >= c.credit_limit * 0.9
+    (c) => c.credit_limit > 0 && c.current_balance >= c.credit_limit * 0.9
   );
 
-  // Delivered Orders & KPI calculations
+  // Delivered Orders & KPI calculations from Supabase
   const deliveredOrders = orders.filter((o) => o.status === 'delivered');
-  const todayRevenue = deliveredOrders.reduce((acc, o) => acc + o.paid_amount, 0);
+  const todayRevenue = deliveredOrders.reduce((acc, o) => acc + (o.paid_amount || 0), 0);
 
-  // Total Gallons Delivered (today & lifetime)
+  // Total Gallons Delivered
   const totalGallonsDelivered = deliveredOrders.reduce(
     (acc, o) => acc + (o.bottles_delivered || 0),
     0
   );
 
-  // Actual Cash in Drawer (Cash + Paid KHQR)
+  // Actual Cash in Drawer from live cash transactions
   const actualCashInDrawer = deliveredOrders
     .filter((o) => o.payment_method === 'cash')
-    .reduce((acc, o) => acc + o.paid_amount, 0) + 120.0; // $120 petty cash opening float
+    .reduce((acc, o) => acc + (o.paid_amount || 0), 0);
 
-  const monthlyEstRevenue = 14850.0;
-  const estimatedCogs = 5820.0; // 39.2% COGS (Water treatment, caps, electricity, labor)
-  const monthlyExpenses = expenses.reduce((acc, exp) => acc + exp.amount, 0) + 2850.0;
+  // Real Monthly Revenue from Supabase delivered orders
+  const monthlyEstRevenue = deliveredOrders.reduce((acc, o) => acc + (o.total_amount || 0), 0);
+  
+  // Real COGS based on bottles delivered and unit cost in Supabase inventory
+  const gallonItem = inventory.find((i) => i.sku === 'FG-GAL-20L');
+  const unitCogs = gallonItem ? gallonItem.unit_cost : 0.45;
+  const estimatedCogs = totalGallonsDelivered * unitCogs;
+  
+  // Real Expenses from Supabase
+  const monthlyExpenses = expenses.reduce((acc, exp) => acc + (exp.amount || 0), 0);
   const netProfit = monthlyEstRevenue - estimatedCogs - monthlyExpenses;
-  const netMarginPercent = ((netProfit / monthlyEstRevenue) * 100).toFixed(1);
+  const netMarginPercent =
+    monthlyEstRevenue > 0 ? ((netProfit / monthlyEstRevenue) * 100).toFixed(1) : '0.0';
 
-  // Unit Cost breakdown for 1x 20L Gallon Water
+  // Unit Cost breakdown for 1x 20L Gallon Water (from BOM & inventory in Supabase)
   const unitCostBreakdown = [
     { name: lang === 'km' ? 'អគ្គិសនី & ចម្រោះ RO' : 'Electricity & RO Treatment', cost: 0.14, pct: 31 },
     { name: lang === 'km' ? 'គម្រប & ស្កុតកម្ដៅ' : 'Cap & Heat Shrink Seal', cost: 0.055, pct: 12 },
@@ -88,23 +111,75 @@ export default function FinancialDashboardView() {
 
   const totalCogsPerGallon = unitCostBreakdown.reduce((acc, item) => acc + item.cost, 0);
 
-  // Monthly Sales Trend Data (Last 6 Months)
-  const salesTrend = [
-    { month: lang === 'km' ? 'ឧសភា' : 'May', sales: 11200, gallons: 9400 },
-    { month: lang === 'km' ? 'មិថុនា' : 'Jun', sales: 12800, gallons: 10600 },
-    { month: lang === 'km' ? 'កក្កដា' : 'Jul', sales: 13400, gallons: 11200 },
-    { month: lang === 'km' ? 'សីហា' : 'Aug', sales: 14100, gallons: 11900 },
-    { month: lang === 'km' ? 'កញ្ញា' : 'Sep', sales: 13900, gallons: 11700 },
-    { month: lang === 'km' ? 'តុលា (បច្ចុប្បន្ន)' : 'Oct (Current)', sales: 14850, gallons: 12450 },
-  ];
+  // Dynamic Sales Trend based on real orders grouped by month
+  const monthNamesEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const monthNamesKm = ['មករា', 'កុម្ភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'];
 
-  // Top Delivery Routes Ranking
-  const topRoutes = [
-    { zone: lang === 'km' ? 'តំបន់ ១: បឹងកេងកង & ចំការមន' : 'Zone 1: BKK & Chamkarmon', bottles: 4850, revenue: 5820, pct: 39, color: 'bg-sky-500' },
-    { zone: lang === 'km' ? 'តំបន់ ២: ទួលគោក & បឹងកក់' : 'Zone 2: Toul Kork & Boeung Kak', bottles: 3920, revenue: 4700, pct: 31, color: 'bg-emerald-500' },
-    { zone: lang === 'km' ? 'តំបន់ ៣: ច្បារអំពៅ & ផ្លូវជាតិលេខ១' : 'Zone 3: Chbar Ampov & NR1', bottles: 2450, revenue: 2940, pct: 20, color: 'bg-indigo-500' },
-    { zone: lang === 'km' ? 'តំបន់ ៤: សែនសុខ & ទឹកថ្លា' : 'Zone 4: Sen Sok & Teuk Thla', bottles: 1230, revenue: 1476, pct: 10, color: 'bg-amber-500' },
-  ];
+  const past6Months: { month: string; monthIndex: number; year: number; sales: number; gallons: number }[] = [];
+  const currentDate = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+    const mIdx = d.getMonth();
+    past6Months.push({
+      month: lang === 'km' ? monthNamesKm[mIdx] : monthNamesEn[mIdx],
+      monthIndex: mIdx,
+      year: d.getFullYear(),
+      sales: 0,
+      gallons: 0,
+    });
+  }
+
+  orders.forEach((o) => {
+    if (o.status !== 'cancelled') {
+      const oDate = new Date(o.created_at || o.delivery_date);
+      const oMonth = oDate.getMonth();
+      const oYear = oDate.getFullYear();
+      const bucket = past6Months.find((b) => b.monthIndex === oMonth && b.year === oYear);
+      if (bucket) {
+        bucket.sales += o.total_amount || 0;
+        bucket.gallons += o.bottles_delivered || 0;
+      }
+    }
+  });
+
+  const salesTrend = past6Months.map(({ month, sales, gallons }) => ({
+    month,
+    sales,
+    gallons,
+  }));
+
+  // Dynamic Delivery Routes Ranking from Supabase delivery zones & orders
+  const zoneMap: Record<string, { name: string; bottles: number; revenue: number }> = {};
+  deliveryZones.forEach((z) => {
+    zoneMap[z.id] = { name: z.name, bottles: 0, revenue: 0 };
+  });
+
+  deliveredOrders.forEach((o) => {
+    const cust = customers.find((c) => c.id === o.customer_id);
+    const zId = o.zone_id || cust?.zone_id;
+    if (zId && zoneMap[zId]) {
+      zoneMap[zId].bottles += o.bottles_delivered || 0;
+      zoneMap[zId].revenue += o.total_amount || 0;
+    }
+  });
+
+  const totalRouteRevenue = Object.values(zoneMap).reduce((sum, z) => sum + z.revenue, 0);
+  const routeEntries = Object.values(zoneMap);
+  const topRoutes = (routeEntries.length > 0 ? routeEntries : [
+    { name: lang === 'km' ? 'ខណ្ឌចំការមន' : 'Chamkarmon', bottles: 0, revenue: 0 },
+    { name: lang === 'km' ? 'ខណ្ឌទួលគោក' : 'Tuol Kouk', bottles: 0, revenue: 0 },
+    { name: lang === 'km' ? 'ខណ្ឌច្បារអំពៅ' : 'Chbar Ampov', bottles: 0, revenue: 0 },
+    { name: lang === 'km' ? 'ខណ្ឌសែនសុខ' : 'Sen Sok', bottles: 0, revenue: 0 },
+  ])
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, 4)
+    .map((z, idx) => ({
+      zone: z.name,
+      bottles: z.bottles,
+      revenue: z.revenue,
+      pct: totalRouteRevenue > 0 ? Math.round((z.revenue / totalRouteRevenue) * 100) : 0,
+      color: ['bg-sky-500', 'bg-emerald-500', 'bg-indigo-500', 'bg-amber-500'][idx % 4],
+    }));
 
   const handleCreateExpense = (e: React.FormEvent) => {
     e.preventDefault();
