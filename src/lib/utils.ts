@@ -5,16 +5,24 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function formatKHR(amountUSD: number, rate = 4100): string {
+  const khr = Math.round(amountUSD * rate);
+  return `${new Intl.NumberFormat('km-KH').format(khr)} ៛`;
+}
+
+export function formatRielAmount(riel: number): string {
+  return `${new Intl.NumberFormat('km-KH').format(Math.round(riel))} ៛`;
+}
+
+export function formatMoney(amountUSD: number, rate = 4100): string {
+  // Default currency is Khmer Riel (៛)
+  return formatKHR(amountUSD, rate);
+}
+
 export function formatUSD(amount: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
   }).format(amount);
-}
-
-export function formatKHR(amount: number): string {
-  // Typical rate: 1 USD = 4,100 KHR
-  const khr = Math.round(amount * 4100);
-  return new Intl.NumberFormat('km-KH').format(khr) + ' ៛';
 }

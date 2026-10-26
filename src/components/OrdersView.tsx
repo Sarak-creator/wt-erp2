@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { Order, OrderStatus } from '@/types/database';
+import { formatKHR } from '@/lib/utils';
 import {
   ShoppingCart,
   Search,
@@ -179,7 +180,8 @@ export default function OrdersView() {
                       <span className="text-emerald-600 font-bold">{order.bottles_returned || 0} In</span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-bold text-slate-900">${order.total_amount.toFixed(2)}</div>
+                      <div className="font-bold text-slate-900">{formatKHR(order.total_amount)}</div>
+                      <span className="text-[11px] text-slate-400 block">${order.total_amount.toFixed(2)}</span>
                       <span
                         className={`text-[10px] font-bold uppercase ${
                           order.payment_status === 'paid'

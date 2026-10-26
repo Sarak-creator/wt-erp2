@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { Customer } from '@/types/database';
+import { formatKHR, formatUSD } from '@/lib/utils';
 import {
   CreditCard,
   Search,
@@ -82,10 +83,10 @@ export default function DebtsView() {
             {lang === 'km' ? 'បំណុលអតិថិជនសរុប' : 'Total Outstanding Debt'}
           </span>
           <div className="text-2xl font-bold text-rose-600 mt-1">
-            ${totalDebt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatKHR(totalDebt)}
           </div>
           <span className="text-xs text-slate-500 mt-1 block">
-            {indebtedCustomers.length} {lang === 'km' ? 'អតិថិជនកំពុងជំពាក់' : 'customers with balance'}
+            USD: ${totalDebt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} • {indebtedCustomers.length} {lang === 'km' ? 'អតិថិជន' : 'customers'}
           </span>
         </div>
 
@@ -156,10 +157,11 @@ export default function DebtsView() {
                   </td>
                   <td className="px-6 py-4 text-slate-600 font-medium">{c.phone}</td>
                   <td className="px-6 py-4 text-slate-500 font-medium">
-                    ${c.credit_limit.toFixed(2)}
+                    {formatKHR(c.credit_limit)}
                   </td>
                   <td className="px-6 py-4 font-bold text-rose-600 text-base">
-                    ${c.current_balance.toFixed(2)}
+                    <div>{formatKHR(c.current_balance)}</div>
+                    <span className="text-xs font-normal text-slate-400">${c.current_balance.toFixed(2)}</span>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <button
@@ -213,14 +215,21 @@ export default function DebtsView() {
                 <strong className="text-slate-900 text-sm">{payingCustomer.name}</strong>
                 <div className="mt-1 flex justify-between text-slate-600">
                   <span>{lang === 'km' ? 'បំណុលបច្ចុប្បន្ន:' : 'Current Debt:'}</span>
-                  <span className="font-bold text-rose-600">${payingCustomer.current_balance.toFixed(2)}</span>
+                  <span className="font-bold text-rose-600">
+                    {formatKHR(payingCustomer.current_balance)} ({formatUSD(payingCustomer.current_balance)})
+                  </span>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">
-                  {lang === 'km' ? 'ចំនួនប្រាក់ត្រូវបង់ ($)' : 'Payment Amount ($)'}
-                </label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-xs font-semibold text-slate-600">
+                    {lang === 'km' ? 'ចំនួនប្រាក់ត្រូវបង់ ($)' : 'Payment Amount ($)'}
+                  </label>
+                  <span className="text-xs font-bold text-emerald-600">
+                    = {formatKHR(paymentAmount)}
+                  </span>
+                </div>
                 <input
                   type="number"
                   step="0.01"

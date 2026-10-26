@@ -28,7 +28,7 @@ const defaultCompanySettings: CompanySettings = {
   name_kh: 'រោងចក្រទឹកបរិសុទ្ធ វ៉ធើ ព្យួរ',
   phone: '012 345 678',
   address: 'Phnom Penh, Cambodia',
-  currency: 'USD',
+  currency: 'KHR',
   khmer_rate: 4100,
   bottle_deposit_rate: 3.0,
 };

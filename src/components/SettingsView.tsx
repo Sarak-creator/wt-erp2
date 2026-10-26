@@ -172,10 +172,18 @@ export default function SettingsView() {
 
         {/* Currency & Deposit Settings */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-          <h2 className="font-bold text-slate-900 text-base flex items-center gap-2">
-            <DollarSign className="w-4 h-4 text-emerald-600" />
-            {lang === 'km' ? 'អត្រាប្តូរប្រាក់ & តម្លៃកក់ដប' : 'Currency & Bottle Deposit Policy'}
-          </h2>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+            <h2 className="font-bold text-slate-900 text-base flex items-center gap-2">
+              <DollarSign className="w-4 h-4 text-emerald-600" />
+              {lang === 'km' ? 'រូបិយប័ណ្ណលំនាំដើម & អត្រាប្តូរប្រាក់' : 'Default Currency & Exchange Policy'}
+            </h2>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-500">{lang === 'km' ? 'រូបិយប័ណ្ណចម្បង:' : 'Default Currency:'}</span>
+              <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
+                ៛ ប្រាក់រៀល (KHR)
+              </span>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -187,8 +195,11 @@ export default function SettingsView() {
                 required
                 value={khmerRate}
                 onChange={(e) => setKhmerRate(parseInt(e.target.value) || 4100)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              <span className="text-[11px] text-slate-400 mt-1 block">
+                {lang === 'km' ? 'តម្លៃទំនិញ វិក្កយបត្រ POS និងបំណុលទាំងអស់គណនាដោយស្វ័យប្រវត្តិនឹងអត្រានេះ' : 'All POS item totals, invoices, and debt calculations adapt to this rate'}
+              </span>
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-600 mb-1">
@@ -200,8 +211,11 @@ export default function SettingsView() {
                 required
                 value={bottleDepositRate}
                 onChange={(e) => setBottleDepositRate(parseFloat(e.target.value) || 3.0)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              <span className="text-[11px] text-emerald-600 font-semibold mt-1 block">
+                ~ {Math.round(Number(bottleDepositRate) * Number(khmerRate)).toLocaleString()} ៛ / {lang === 'km' ? 'ដប' : 'bottle'}
+              </span>
             </div>
           </div>
         </div>

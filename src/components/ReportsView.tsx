@@ -12,6 +12,7 @@ import {
   RefreshCw,
   FileSpreadsheet,
 } from 'lucide-react';
+import { formatKHR, formatUSD } from '@/lib/utils';
 
 export default function ReportsView() {
   const {
@@ -77,10 +78,10 @@ export default function ReportsView() {
             {lang === 'km' ? 'ចំណូលដុល' : 'Gross Revenue'}
           </span>
           <div className="text-2xl font-bold text-slate-900 mt-1">
-            ${grossRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatKHR(grossRevenue)}
           </div>
-          <span className="text-xs text-emerald-600 font-semibold mt-1 block">
-            {deliveredOrders.length} {lang === 'km' ? 'ការបញ្ជាទិញបានសម្រេច' : 'completed orders'}
+          <span className="text-xs text-slate-500 font-semibold mt-1 block">
+            USD: ${grossRevenue.toFixed(2)} • {deliveredOrders.length} {lang === 'km' ? 'ការបញ្ជាទិញ' : 'orders'}
           </span>
         </div>
 
@@ -89,10 +90,10 @@ export default function ReportsView() {
             {lang === 'km' ? 'ថ្លៃដើម & ចំណាយ' : 'COGS & OpEx'}
           </span>
           <div className="text-2xl font-bold text-rose-600 mt-1">
-            ${(estimatedCogs + totalExpenses).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatKHR(estimatedCogs + totalExpenses)}
           </div>
           <span className="text-xs text-slate-500 mt-1 block">
-            COGS: ${estimatedCogs.toFixed(2)} | Exp: ${totalExpenses.toFixed(2)}
+            USD: ${(estimatedCogs + totalExpenses).toFixed(2)} (COGS: {formatKHR(estimatedCogs)} | Exp: {formatKHR(totalExpenses)})
           </span>
         </div>
 
@@ -101,10 +102,10 @@ export default function ReportsView() {
             {lang === 'km' ? 'ប្រាក់ចំណេញសុទ្ធ' : 'Net Profit'}
           </span>
           <div className={`text-2xl font-bold mt-1 ${netProfit >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-            ${netProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatKHR(netProfit)}
           </div>
           <span className="text-xs text-slate-500 mt-1 block">
-            {netMargin.toFixed(1)}% {lang === 'km' ? 'ផលចំណេញសុទ្ធ' : 'net margin'}
+            USD: ${netProfit.toFixed(2)} • {netMargin.toFixed(1)}% {lang === 'km' ? 'ផលចំណេញ' : 'margin'}
           </span>
         </div>
 
@@ -135,7 +136,7 @@ export default function ReportsView() {
                 <div key={zone.id} className="space-y-1">
                   <div className="flex justify-between text-xs font-semibold">
                     <span className="text-slate-800">{zone.name}</span>
-                    <span className="text-slate-900">${zoneRev.toFixed(2)} ({pct.toFixed(0)}%)</span>
+                    <span className="text-slate-900">{formatKHR(zoneRev)} ({pct.toFixed(0)}%)</span>
                   </div>
                   <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                     <div

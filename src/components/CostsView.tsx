@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { Expense } from '@/types/database';
+import { formatKHR, formatUSD } from '@/lib/utils';
 import {
   Receipt,
   Plus,
@@ -115,10 +116,10 @@ export default function CostsView() {
             {lang === 'km' ? 'ចំណាយសរុបទាំងអស់' : 'Total Recorded Cost'}
           </span>
           <div className="text-2xl font-bold text-slate-900 mt-1">
-            ${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatKHR(totalCost)}
           </div>
           <span className="text-xs text-slate-500 mt-1 block">
-            {expenses.length} {lang === 'km' ? 'វិក្កយបត្រចំណាយ' : 'expense entries'}
+            USD: ${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} • {expenses.length} {lang === 'km' ? 'វិក្កយបត្រ' : 'entries'}
           </span>
         </div>
 
@@ -199,7 +200,8 @@ export default function CostsView() {
                   </td>
                   <td className="px-6 py-4 text-slate-700 font-medium">{exp.description}</td>
                   <td className="px-6 py-4 text-right font-bold text-slate-900 text-base">
-                    ${exp.amount.toFixed(2)}
+                    <div>{formatKHR(exp.amount)}</div>
+                    <span className="text-xs font-normal text-slate-400">${exp.amount.toFixed(2)}</span>
                   </td>
                 </tr>
               ))}
@@ -252,9 +254,14 @@ export default function CostsView() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">
-                  {lang === 'km' ? 'ចំនួនទឹកប្រាក់ ($)' : 'Amount ($)'}
-                </label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-xs font-semibold text-slate-600">
+                    {lang === 'km' ? 'ចំនួនទឹកប្រាក់ ($)' : 'Amount ($)'}
+                  </label>
+                  <span className="text-xs font-bold text-amber-600">
+                    = {formatKHR(amount)}
+                  </span>
+                </div>
                 <input
                   type="number"
                   step="0.01"

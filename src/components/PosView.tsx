@@ -261,10 +261,10 @@ export default function PosView() {
                 <div className="mt-4 flex items-baseline justify-between pt-2 border-t border-slate-100">
                   <div>
                     <span className="text-base font-black text-slate-900">
-                      {formatUSD(price)}
+                      {formatKHR(price)}
                     </span>
                     <span className="text-[10px] text-slate-400 block">
-                      {formatKHR(price)}
+                      {formatUSD(price)}
                     </span>
                   </div>
                   <div className="h-7 w-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
@@ -385,8 +385,8 @@ export default function PosView() {
                       </button>
                     </div>
 
-                    <span className="w-16 text-right font-bold text-slate-900">
-                      {formatUSD(ci.lineTotal)}
+                    <span className="w-20 text-right font-bold text-slate-900">
+                      {formatKHR(ci.lineTotal)}
                     </span>
 
                     <button
@@ -408,28 +408,28 @@ export default function PosView() {
           <div className="space-y-1.5 text-xs text-slate-600">
             <div className="flex justify-between">
               <span>{t.pos.subtotal}:</span>
-              <span className="font-semibold text-slate-800">{formatUSD(subtotal)}</span>
+              <span className="font-semibold text-slate-800">{formatKHR(subtotal)}</span>
             </div>
             {depositBottlesCount > 0 && (
               <div className="flex justify-between text-blue-600 font-medium">
                 <span>
                   {t.pos.depositCharge} ({depositBottlesCount}):
                 </span>
-                <span>+{formatUSD(totalDeposit)}</span>
+                <span>+{formatKHR(totalDeposit)}</span>
               </div>
             )}
             {discountPercent > 0 && (
               <div className="flex justify-between text-emerald-600 font-medium">
                 <span>{t.pos.discount} ({discountPercent}%):</span>
-                <span>-{formatUSD(discountAmount)}</span>
+                <span>-{formatKHR(discountAmount)}</span>
               </div>
             )}
             <div className="flex justify-between items-baseline pt-2 border-t border-slate-200 text-base font-black text-slate-900">
               <span>{t.pos.totalPayable}:</span>
               <div className="text-right">
-                <span className="text-blue-600">{formatUSD(grandTotal)}</span>
+                <span className="text-blue-600">{formatKHR(grandTotal)}</span>
                 <span className="text-xs text-slate-400 block font-normal">
-                  {formatKHR(grandTotal)}
+                  {formatUSD(grandTotal)}
                 </span>
               </div>
             </div>
@@ -505,7 +505,7 @@ export default function PosView() {
             className="w-full flex h-14 min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-sky-600 text-sm md:text-base font-black text-white shadow-lg shadow-sky-600/25 hover:bg-sky-700 transition-all disabled:opacity-40 disabled:pointer-events-none active:scale-[0.99]"
           >
             <CheckCircle2 className="h-5 w-5" />
-            <span>✓ {t.pos.checkout} ({formatUSD(grandTotal)})</span>
+            <span>✓ {t.pos.checkout} ({formatKHR(grandTotal)})</span>
           </button>
         </div>
       </div>
@@ -562,16 +562,16 @@ export default function PosView() {
                   <div key={idx} className="flex justify-between text-[11px]">
                     <span className="truncate max-w-[140px]">{it.item.name}</span>
                     <span>
-                      {it.quantity} x {formatUSD(it.unitPrice)}
+                      {it.quantity} x {formatKHR(it.unitPrice)}
                     </span>
-                    <span>{formatUSD(it.lineTotal)}</span>
+                    <span className="font-semibold">{formatKHR(it.lineTotal)}</span>
                   </div>
                 ))}
                 {receiptData.depositCount > 0 && (
                   <div className="flex justify-between text-[11px] text-blue-700">
                     <span>20L Gallon Deposit x {receiptData.depositCount}</span>
-                    <span>@ $3.00</span>
-                    <span>+{formatUSD(receiptData.deposit)}</span>
+                    <span>@ {formatKHR(3)}</span>
+                    <span className="font-semibold">+{formatKHR(receiptData.deposit)}</span>
                   </div>
                 )}
               </div>
@@ -580,21 +580,21 @@ export default function PosView() {
               <div className="space-y-1 text-[11px] border-b border-dashed border-slate-300 pb-3 mb-3">
                 <div className="flex justify-between">
                   <span>SUBTOTAL:</span>
-                  <span>{formatUSD(receiptData.subtotal)}</span>
+                  <span>{formatKHR(receiptData.subtotal)}</span>
                 </div>
                 {receiptData.discount > 0 && (
                   <div className="flex justify-between text-emerald-600">
                     <span>DISCOUNT:</span>
-                    <span>-{formatUSD(receiptData.discount)}</span>
+                    <span>-{formatKHR(receiptData.discount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between font-bold text-xs pt-1 border-t border-slate-200">
-                  <span>GRAND TOTAL (USD):</span>
-                  <span>{formatUSD(receiptData.grandTotal)}</span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>TOTAL (KHR ៛):</span>
+                <div className="flex justify-between font-bold text-xs pt-1 border-t border-slate-300 text-slate-900">
+                  <span>សរុប (KHR ៛):</span>
                   <span>{formatKHR(receiptData.grandTotal)}</span>
+                </div>
+                <div className="flex justify-between text-[10px] text-slate-500">
+                  <span>USD EQUIV:</span>
+                  <span>{formatUSD(receiptData.grandTotal)}</span>
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span>PAYMENT METHOD:</span>

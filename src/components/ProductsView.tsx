@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { InventoryItem } from '@/types/database';
+import { formatKHR, formatUSD } from '@/lib/utils';
 import {
   Package,
   Plus,
@@ -220,19 +221,22 @@ export default function ProductsView() {
               <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs">
                 <div>
                   <span className="text-slate-400 block">{lang === 'km' ? 'តម្លៃរាយ' : 'Retail Price'}</span>
-                  <span className="text-sm font-bold text-emerald-600">${item.retail_price.toFixed(2)}</span>
+                  <span className="text-sm font-bold text-emerald-600 block">{formatKHR(item.retail_price)}</span>
+                  <span className="text-[10px] text-slate-400 font-medium">${item.retail_price.toFixed(2)}</span>
                 </div>
                 <div>
                   <span className="text-slate-400 block">{lang === 'km' ? 'តម្លៃបោះដុំ' : 'Wholesale'}</span>
-                  <span className="text-sm font-bold text-blue-600">${item.wholesale_price.toFixed(2)}</span>
+                  <span className="text-sm font-bold text-blue-600 block">{formatKHR(item.wholesale_price)}</span>
+                  <span className="text-[10px] text-slate-400 font-medium">${item.wholesale_price.toFixed(2)}</span>
                 </div>
                 <div>
                   <span className="text-slate-400 block">{lang === 'km' ? 'ថ្លៃដើម' : 'Cost Unit'}</span>
-                  <span className="font-semibold text-slate-700">${item.unit_cost.toFixed(2)}</span>
+                  <span className="font-semibold text-slate-700 block">{formatKHR(item.unit_cost)}</span>
+                  <span className="text-[10px] text-slate-400 font-medium">${item.unit_cost.toFixed(2)}</span>
                 </div>
                 <div>
                   <span className="text-slate-400 block">{lang === 'km' ? 'ឯកតា' : 'Unit'}</span>
-                  <span className="font-semibold text-slate-700 capitalize">{item.unit}</span>
+                  <span className="font-semibold text-slate-700 capitalize block pt-1">{item.unit}</span>
                 </div>
               </div>
 

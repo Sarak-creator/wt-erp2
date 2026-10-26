@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { Purchase } from '@/types/database';
+import { formatKHR, formatUSD } from '@/lib/utils';
 import {
   Truck,
   Plus,
@@ -132,10 +133,10 @@ export default function PurchasesView() {
             {lang === 'km' ? 'ទំហំបញ្ជាទិញសរុប' : 'Total Procurement Value'}
           </span>
           <div className="text-2xl font-bold text-slate-900 mt-1">
-            ${totalPurchases.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatKHR(totalPurchases)}
           </div>
           <span className="text-xs text-slate-500 mt-1 block">
-            {purchases.length} {lang === 'km' ? 'ការបញ្ជាទិញ' : 'purchase orders'}
+            USD: ${totalPurchases.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} • {purchases.length} {lang === 'km' ? 'ការបញ្ជាទិញ' : 'orders'}
           </span>
         </div>
 
@@ -201,7 +202,8 @@ export default function PurchasesView() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right font-bold text-slate-900 text-base">
-                    ${p.total_amount.toFixed(2)}
+                    <div>{formatKHR(p.total_amount)}</div>
+                    <span className="text-xs font-normal text-slate-400">${p.total_amount.toFixed(2)}</span>
                   </td>
                 </tr>
               ))}
@@ -318,9 +320,14 @@ export default function PurchasesView() {
                 <span className="text-cyan-800 font-medium">
                   {lang === 'km' ? 'សរុបតម្លៃបញ្ជាទិញ:' : 'Calculated Total:'}
                 </span>
-                <span className="text-base font-bold text-cyan-900">
-                  ${(Number(quantity) * Number(unitCost)).toFixed(2)}
-                </span>
+                <div className="text-right">
+                  <span className="text-base font-bold text-cyan-900 block">
+                    {formatKHR(Number(quantity) * Number(unitCost))}
+                  </span>
+                  <span className="text-[11px] text-cyan-700">
+                    ${(Number(quantity) * Number(unitCost)).toFixed(2)}
+                  </span>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
