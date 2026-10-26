@@ -57,6 +57,8 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Silence Next.js 16 Turbopack webpack conflict
+  turbopack: {},
   webpack: (config) => {
     config.resolve = config.resolve || {};
     config.resolve.symlinks = false;
