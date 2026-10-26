@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { translations } from '@/lib/i18n';
-import { formatUSD, formatKHR } from '@/lib/utils';
+import { formatKHR } from '@/lib/utils';
 import MetricCard from '@/components/MetricCard';
 import {
   DollarSign,
@@ -246,8 +246,7 @@ export default function FinancialDashboardView() {
         {/* 1. ចំណូលថ្ងៃនេះ (Today's Revenue) */}
         <MetricCard
           title={lang === 'km' ? 'ចំណូលថ្ងៃនេះ' : "Today's Revenue"}
-          value={formatUSD(todayRevenue)}
-          subValue={`≈ ${formatKHR(todayRevenue)}`}
+          value={formatKHR(todayRevenue)}
           icon={DollarSign}
           iconColor="text-emerald-600"
           iconBg="bg-emerald-50 border-emerald-100"
@@ -264,13 +263,13 @@ export default function FinancialDashboardView() {
         {/* 2. ទឹកប្រាក់ត្រូវទារ (Pending Receivables / A/R) */}
         <MetricCard
           title={lang === 'km' ? 'ទឹកប្រាក់ត្រូវទារ (A/R)' : 'Pending Receivables'}
-          value={formatUSD(totalReceivables)}
+          value={formatKHR(totalReceivables)}
           subValue={`${customers.filter((c) => c.current_balance > 0).length} ${lang === 'km' ? 'អតិថិជនជំពាក់' : 'debtors'}`}
           icon={Clock}
           iconColor="text-amber-600"
           iconBg="bg-amber-50 border-amber-100"
           change={{
-            value: formatUSD(overdueOver60),
+            value: formatKHR(overdueOver60),
             trend: 'down',
             label: lang === 'km' ? 'ហានិភ័យ > ៦០ថ្ងៃ' : 'overdue > 60d',
           }}
@@ -298,8 +297,7 @@ export default function FinancialDashboardView() {
         {/* 4. លំហូរសាច់ប្រាក់ជាក់ស្តែង (Actual Cash in Drawer) */}
         <MetricCard
           title={lang === 'km' ? 'សាច់ប្រាក់ក្នុងថត' : 'Actual Cash in Drawer'}
-          value={formatUSD(actualCashInDrawer)}
-          subValue={`+ $120 Float`}
+          value={formatKHR(actualCashInDrawer)}
           icon={Wallet}
           iconColor="text-blue-600"
           iconBg="bg-blue-50 border-blue-100"
@@ -330,7 +328,7 @@ export default function FinancialDashboardView() {
               </p>
             </div>
             <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
-              {formatUSD(monthlyEstRevenue)} (Oct)
+              {formatKHR(monthlyEstRevenue)}
             </span>
           </div>
 
@@ -338,14 +336,14 @@ export default function FinancialDashboardView() {
           <div className="pt-2">
             <div className="grid grid-cols-6 gap-2 sm:gap-4 items-end h-48 border-b border-slate-200 pb-2">
               {salesTrend.map((item, idx) => {
-                const maxVal = 16000;
+                const maxVal = Math.max(...salesTrend.map((s) => s.sales), 100000);
                 const heightPct = Math.round((item.sales / maxVal) * 100);
                 const isCurrent = idx === salesTrend.length - 1;
 
                 return (
                   <div key={idx} className="flex flex-col items-center gap-2 h-full justify-end group">
                     <span className="text-[10px] font-bold text-slate-500 tabular-nums opacity-0 group-hover:opacity-100 transition-opacity">
-                      {formatUSD(item.sales)}
+                      {formatKHR(item.sales)}
                     </span>
                     <div className="w-full max-w-[42px] bg-slate-100 rounded-t-xl relative overflow-hidden flex flex-col justify-end" style={{ height: '80%' }}>
                       <div
@@ -365,12 +363,11 @@ export default function FinancialDashboardView() {
               })}
             </div>
             <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 font-medium">
-              <span>Min: $11,200</span>
               <span className="flex items-center gap-1.5 text-slate-600">
                 <span className="h-2.5 w-2.5 rounded-full bg-sky-500 inline-block"></span>
                 {lang === 'km' ? 'ចំណូលលក់ទឹក' : 'Pure Water Revenue'}
               </span>
-              <span>Max: $14,850</span>
+              <span>{formatKHR(monthlyEstRevenue)}</span>
             </div>
           </div>
         </div>
@@ -397,7 +394,7 @@ export default function FinancialDashboardView() {
                     {route.zone}
                   </span>
                   <div className="flex items-center gap-2 tabular-nums">
-                    <span className="font-black text-slate-900">{formatUSD(route.revenue)}</span>
+                    <span className="font-black text-slate-900">{formatKHR(route.revenue)}</span>
                     <span className="text-[11px] text-slate-400">({route.bottles} ធុង)</span>
                   </div>
                 </div>
@@ -472,7 +469,7 @@ export default function FinancialDashboardView() {
                     {exp.description}
                   </td>
                   <td className="px-3 py-3 text-right font-black text-rose-600 tabular-nums">
-                    -{formatUSD(exp.amount)}
+                    -{formatKHR(exp.amount)}
                   </td>
                 </tr>
               ))}
@@ -507,18 +504,18 @@ export default function FinancialDashboardView() {
               {/* Amount Input (Large & Clear) */}
               <div>
                 <label className="text-xs font-bold text-slate-700 mb-1 block">
-                  {lang === 'km' ? 'ទឹកប្រាក់ចំណាយ (Amount in USD) *' : 'Expense Amount ($) *'}
+                  {lang === 'km' ? 'ទឹកប្រាក់ចំណាយ (៛) *' : 'Expense Amount (៛) *'}
                 </label>
                 <div className="relative">
                   <span className="absolute left-3 top-2.5 text-lg font-black text-slate-400">
-                    $
+                    ៛
                   </span>
                   <input
                     type="number"
-                    step="0.01"
-                    min="0.01"
+                    step="100"
+                    min="100"
                     required
-                    placeholder="0.00"
+                    placeholder="0"
                     value={expenseAmount}
                     onChange={(e) =>
                       setExpenseAmount(e.target.value === '' ? '' : parseFloat(e.target.value))

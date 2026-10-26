@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { formatUSD, formatKHR } from '@/lib/utils';
+import { formatKHR } from '@/lib/utils';
 import {
   QrCode,
   CheckCircle2,
@@ -112,9 +112,6 @@ export default function KhqrModal({
               <span className="text-2xl font-black text-emerald-800 tabular-nums">
                 {formatKHR(amountUSD)}
               </span>
-              <span className="text-xs text-emerald-600 block tabular-nums">
-                ({formatUSD(amountUSD)})
-              </span>
             </div>
           </div>
         ) : (
@@ -139,12 +136,9 @@ export default function KhqrModal({
               <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
                 ទឹកប្រាក់ត្រូវទូទាត់ (Amount Due)
               </span>
-              <div className="mt-1 flex items-baseline justify-center gap-2">
+              <div className="mt-1 flex items-baseline justify-center">
                 <span className="text-3xl font-black text-red-600 tracking-tight tabular-nums">
                   {formatKHR(amountUSD)}
-                </span>
-                <span className="text-sm font-bold text-slate-500 tabular-nums">
-                  / {formatUSD(amountUSD)}
                 </span>
               </div>
             </div>

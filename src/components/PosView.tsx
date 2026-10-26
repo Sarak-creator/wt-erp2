@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { translations } from '@/lib/i18n';
-import { formatUSD, formatKHR } from '@/lib/utils';
+import { formatKHR } from '@/lib/utils';
 import { InventoryItem, PaymentMethod } from '@/types/database';
 import {
   ShoppingCart,
@@ -263,9 +263,6 @@ export default function PosView() {
                     <span className="text-base font-black text-slate-900">
                       {formatKHR(price)}
                     </span>
-                    <span className="text-[10px] text-slate-400 block">
-                      {formatUSD(price)}
-                    </span>
                   </div>
                   <div className="h-7 w-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
                     <Plus className="h-4 w-4" />
@@ -284,8 +281,8 @@ export default function PosView() {
                 <Package className="h-5 w-5 text-cyan-300" />
                 <h4 className="font-bold text-sm">
                   {lang === 'km'
-                    ? 'ប្រាក់កក់ធុងទឹកថ្មី ($3.00/ធុង)'
-                    : 'New 20L Gallon Cash Deposit ($3.00/bottle)'}
+                    ? 'ប្រាក់កក់ធុងទឹកថ្មី (12,000 ៛/ធុង)'
+                    : 'New 20L Gallon Cash Deposit (12,000 ៛/bottle)'}
                 </h4>
               </div>
               <p className="text-xs text-blue-200 mt-0.5">
@@ -312,7 +309,7 @@ export default function PosView() {
                 <Plus className="h-4 w-4" />
               </button>
               <span className="text-xs font-semibold pl-1 text-cyan-200">
-                = {formatUSD(totalDeposit)}
+                = {formatKHR(totalDeposit)}
               </span>
             </div>
           </div>
@@ -362,7 +359,7 @@ export default function PosView() {
                       {lang === 'km' && ci.item.name_kh ? ci.item.name_kh : ci.item.name}
                     </span>
                     <span className="text-slate-500">
-                      {formatUSD(ci.unitPrice)} / {ci.item.unit}
+                      {formatKHR(ci.unitPrice)} / {ci.item.unit}
                     </span>
                   </div>
 
@@ -427,10 +424,7 @@ export default function PosView() {
             <div className="flex justify-between items-baseline pt-2 border-t border-slate-200 text-base font-black text-slate-900">
               <span>{t.pos.totalPayable}:</span>
               <div className="text-right">
-                <span className="text-blue-600">{formatKHR(grandTotal)}</span>
-                <span className="text-xs text-slate-400 block font-normal">
-                  {formatUSD(grandTotal)}
-                </span>
+                <span className="text-blue-600 text-lg font-black">{formatKHR(grandTotal)}</span>
               </div>
             </div>
           </div>
@@ -591,10 +585,6 @@ export default function PosView() {
                 <div className="flex justify-between font-bold text-xs pt-1 border-t border-slate-300 text-slate-900">
                   <span>សរុប (KHR ៛):</span>
                   <span>{formatKHR(receiptData.grandTotal)}</span>
-                </div>
-                <div className="flex justify-between text-[10px] text-slate-500">
-                  <span>USD EQUIV:</span>
-                  <span>{formatUSD(receiptData.grandTotal)}</span>
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span>PAYMENT METHOD:</span>

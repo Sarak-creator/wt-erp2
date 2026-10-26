@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { Customer, CustomerPriceTier } from '@/types/database';
-import { formatKHR, formatUSD } from '@/lib/utils';
+import { formatKHR } from '@/lib/utils';
 import {
   Users,
   Plus,
@@ -258,9 +258,6 @@ export default function CustomersView() {
                   <span className={`font-bold block ${hasDebt ? 'text-rose-600 text-sm' : 'text-slate-700'}`}>
                     {formatKHR(c.current_balance)}
                   </span>
-                  {hasDebt && (
-                    <span className="text-[10px] text-slate-400 font-medium">${c.current_balance.toFixed(2)}</span>
-                  )}
                 </div>
                 <div>
                   <span className="text-slate-400 block">{lang === 'km' ? 'ដបកាន់កាប់' : 'Bottles Held'}</span>
@@ -413,7 +410,7 @@ export default function CustomersView() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1">
-                    {lang === 'km' ? 'ដែនកំណត់ជំពាក់ ($)' : 'Credit Limit ($)'}
+                    {lang === 'km' ? 'ដែនកំណត់ជំពាក់ (៛)' : 'Credit Limit (៛)'}
                   </label>
                   <input
                     type="number"
@@ -486,7 +483,7 @@ export default function CustomersView() {
                 <div className="mt-1 flex justify-between text-slate-600">
                   <span>{lang === 'km' ? 'បំណុលបច្ចុប្បន្ន:' : 'Current Debt:'}</span>
                   <span className="font-bold text-rose-600">
-                    {formatKHR(payingCustomer.current_balance)} ({formatUSD(payingCustomer.current_balance)})
+                    {formatKHR(payingCustomer.current_balance)}
                   </span>
                 </div>
               </div>
@@ -494,10 +491,10 @@ export default function CustomersView() {
               <div>
                 <div className="flex justify-between items-center mb-1">
                   <label className="text-xs font-semibold text-slate-600">
-                    {lang === 'km' ? 'ចំនួនប្រាក់ត្រូវបង់ ($)' : 'Payment Amount ($)'}
+                    {lang === 'km' ? 'ចំនួនប្រាក់ត្រូវបង់ (៛)' : 'Payment Amount (៛)'}
                   </label>
                   <span className="text-xs font-bold text-emerald-600">
-                    = {formatKHR(paymentAmount)}
+                    {formatKHR(paymentAmount)}
                   </span>
                 </div>
                 <input

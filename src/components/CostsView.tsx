@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { Expense } from '@/types/database';
-import { formatKHR, formatUSD } from '@/lib/utils';
+import { formatKHR } from '@/lib/utils';
 import {
   Receipt,
   Plus,
@@ -119,7 +119,7 @@ export default function CostsView() {
             {formatKHR(totalCost)}
           </div>
           <span className="text-xs text-slate-500 mt-1 block">
-            USD: ${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} • {expenses.length} {lang === 'km' ? 'វិក្កយបត្រ' : 'entries'}
+            {expenses.length} {lang === 'km' ? 'វិក្កយបត្រចំណាយ' : 'expense entries'}
           </span>
         </div>
 
@@ -201,7 +201,6 @@ export default function CostsView() {
                   <td className="px-6 py-4 text-slate-700 font-medium">{exp.description}</td>
                   <td className="px-6 py-4 text-right font-bold text-slate-900 text-base">
                     <div>{formatKHR(exp.amount)}</div>
-                    <span className="text-xs font-normal text-slate-400">${exp.amount.toFixed(2)}</span>
                   </td>
                 </tr>
               ))}
@@ -256,10 +255,10 @@ export default function CostsView() {
               <div>
                 <div className="flex justify-between items-center mb-1">
                   <label className="text-xs font-semibold text-slate-600">
-                    {lang === 'km' ? 'ចំនួនទឹកប្រាក់ ($)' : 'Amount ($)'}
+                    {lang === 'km' ? 'ចំនួនទឹកប្រាក់ (៛)' : 'Amount (៛)'}
                   </label>
                   <span className="text-xs font-bold text-amber-600">
-                    = {formatKHR(amount)}
+                    {formatKHR(amount)}
                   </span>
                 </div>
                 <input

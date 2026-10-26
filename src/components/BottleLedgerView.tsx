@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { translations } from '@/lib/i18n';
-import { formatUSD } from '@/lib/utils';
+import { formatKHR } from '@/lib/utils';
 import MetricCard from '@/components/MetricCard';
 import {
   Package,
@@ -157,8 +157,8 @@ export default function BottleLedgerView() {
         {/* 3. ប្រាក់កក់សរុប (Held Deposit Amount) */}
         <MetricCard
           title={lang === 'km' ? 'ប្រាក់កក់សរុប (Held Deposits)' : 'Held Deposit Amount'}
-          value={formatUSD(totalDepositsHeld)}
-          subValue={`@ $3.00/ធុង`}
+          value={formatKHR(totalDepositsHeld)}
+          subValue={`@ 12,000 ៛/ធុង`}
           icon={DollarSign}
           iconColor="text-blue-600"
           iconBg="bg-blue-50 border-blue-100"
@@ -244,7 +244,7 @@ export default function BottleLedgerView() {
                     <span className="text-base">💧</span> x {cust.empty_bottles_held} Gallons Out
                   </span>
                   <span className="text-[11px] font-mono font-bold text-slate-700">
-                    {formatUSD(cust.deposit_balance)}
+                    {formatKHR(cust.deposit_balance)}
                   </span>
                 </div>
               </div>
@@ -306,10 +306,10 @@ export default function BottleLedgerView() {
                       )}
                     </td>
                     <td className="py-3 px-3 font-medium text-emerald-700">
-                      {row.deposit_collected > 0 ? `+${formatUSD(row.deposit_collected)}` : '-'}
+                      {row.deposit_collected > 0 ? `+${formatKHR(row.deposit_collected)}` : '-'}
                     </td>
                     <td className="py-3 px-3 font-medium text-rose-700">
-                      {row.deposit_refunded > 0 ? `-${formatUSD(row.deposit_refunded)}` : '-'}
+                      {row.deposit_refunded > 0 ? `-${formatKHR(row.deposit_refunded)}` : '-'}
                     </td>
                     <td className="py-3 px-3 text-slate-500 truncate max-w-xs">
                       {row.notes || '-'}
@@ -407,11 +407,11 @@ export default function BottleLedgerView() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="font-bold text-slate-700 mb-1 block">
-                    {t.bottles.depositCollected} ($3/ea)
+                    {t.bottles.depositCollected} (12,000 ៛/ធុង)
                   </label>
                   <input
                     type="number"
-                    step="0.5"
+                    step="500"
                     min="0"
                     value={depositCollected}
                     onChange={(e) => setDepositCollected(parseFloat(e.target.value) || 0)}
@@ -420,11 +420,11 @@ export default function BottleLedgerView() {
                 </div>
                 <div>
                   <label className="font-bold text-slate-700 mb-1 block">
-                    {t.bottles.depositRefunded}
+                    {t.bottles.depositRefunded} (៛)
                   </label>
                   <input
                     type="number"
-                    step="0.5"
+                    step="500"
                     min="0"
                     value={depositRefunded}
                     onChange={(e) => setDepositRefunded(parseFloat(e.target.value) || 0)}

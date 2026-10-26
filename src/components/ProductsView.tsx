@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { InventoryItem } from '@/types/database';
-import { formatKHR, formatUSD } from '@/lib/utils';
+import { formatKHR } from '@/lib/utils';
 import {
   Package,
   Plus,
@@ -222,17 +222,14 @@ export default function ProductsView() {
                 <div>
                   <span className="text-slate-400 block">{lang === 'km' ? 'តម្លៃរាយ' : 'Retail Price'}</span>
                   <span className="text-sm font-bold text-emerald-600 block">{formatKHR(item.retail_price)}</span>
-                  <span className="text-[10px] text-slate-400 font-medium">${item.retail_price.toFixed(2)}</span>
                 </div>
                 <div>
                   <span className="text-slate-400 block">{lang === 'km' ? 'តម្លៃបោះដុំ' : 'Wholesale'}</span>
                   <span className="text-sm font-bold text-blue-600 block">{formatKHR(item.wholesale_price)}</span>
-                  <span className="text-[10px] text-slate-400 font-medium">${item.wholesale_price.toFixed(2)}</span>
                 </div>
                 <div>
                   <span className="text-slate-400 block">{lang === 'km' ? 'ថ្លៃដើម' : 'Cost Unit'}</span>
                   <span className="font-semibold text-slate-700 block">{formatKHR(item.unit_cost)}</span>
-                  <span className="text-[10px] text-slate-400 font-medium">${item.unit_cost.toFixed(2)}</span>
                 </div>
                 <div>
                   <span className="text-slate-400 block">{lang === 'km' ? 'ឯកតា' : 'Unit'}</span>
@@ -355,7 +352,7 @@ export default function ProductsView() {
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1">
-                    {lang === 'km' ? 'តម្លៃរាយ ($)' : 'Retail ($)'}
+                    {lang === 'km' ? 'តម្លៃរាយ (៛)' : 'Retail (៛)'}
                   </label>
                   <input
                     type="number"
@@ -368,7 +365,7 @@ export default function ProductsView() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1">
-                    {lang === 'km' ? 'តម្លៃបោះដុំ ($)' : 'Wholesale ($)'}
+                    {lang === 'km' ? 'តម្លៃបោះដុំ (៛)' : 'Wholesale (៛)'}
                   </label>
                   <input
                     type="number"
@@ -381,7 +378,7 @@ export default function ProductsView() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1">
-                    {lang === 'km' ? 'ថ្លៃដើម ($)' : 'Unit Cost ($)'}
+                    {lang === 'km' ? 'ថ្លៃដើម (៛)' : 'Unit Cost (៛)'}
                   </label>
                   <input
                     type="number"

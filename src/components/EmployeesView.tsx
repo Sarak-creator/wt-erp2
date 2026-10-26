@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { Employee } from '@/types/database';
+import { formatKHR } from '@/lib/utils';
 import {
   UserCheck,
   Plus,
@@ -221,13 +222,13 @@ export default function EmployeesView() {
             <div className="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs">
               <div>
                 <span className="text-slate-400 block">{lang === 'km' ? 'ប្រាក់ខែគោល' : 'Base Salary'}</span>
-                <span className="font-bold text-slate-900 text-sm">${emp.base_salary.toFixed(2)}</span>
+                <span className="font-bold text-slate-900 text-sm">{formatKHR(emp.base_salary)}</span>
                 <span className="text-[10px] text-slate-400 block capitalize">{emp.salary_type}</span>
               </div>
               <div>
                 <span className="text-slate-400 block">{lang === 'km' ? 'កម្រៃជើងសារ' : 'Commission'}</span>
                 <span className="font-bold text-emerald-600 text-sm">
-                  ${emp.commission_rate.toFixed(2)}/u
+                  {formatKHR(emp.commission_rate)}/u
                 </span>
                 <span className="text-[10px] text-slate-400 block">per unit</span>
               </div>
@@ -357,11 +358,11 @@ export default function EmployeesView() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1">
-                    {lang === 'km' ? 'ប្រាក់ខែគោល ($)' : 'Base Salary ($)'}
+                    {lang === 'km' ? 'ប្រាក់ខែគោល (៛)' : 'Base Salary (៛)'}
                   </label>
                   <input
                     type="number"
-                    step="0.01"
+                    step="100"
                     required
                     value={baseSalary}
                     onChange={(e) => setBaseSalary(parseFloat(e.target.value) || 0)}
@@ -370,11 +371,11 @@ export default function EmployeesView() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1">
-                    {lang === 'km' ? 'កម្រៃជើងសារ ($/ដប)' : 'Commission ($/unit)'}
+                    {lang === 'km' ? 'កម្រៃជើងសារ (៛/ដប)' : 'Commission (៛/unit)'}
                   </label>
                   <input
                     type="number"
-                    step="0.01"
+                    step="50"
                     value={commissionRate}
                     onChange={(e) => setCommissionRate(parseFloat(e.target.value) || 0)}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"

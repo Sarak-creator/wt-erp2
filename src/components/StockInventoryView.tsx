@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { InventoryItem } from '@/types/database';
+import { formatKHR } from '@/lib/utils';
 import {
   Boxes,
   Plus,
@@ -89,7 +90,7 @@ export default function StockInventoryView() {
             {lang === 'km' ? 'តម្លៃស្តុកសរុប' : 'Total Stock Value'}
           </span>
           <div className="text-2xl font-bold text-slate-900 mt-1">
-            ${totalStockValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatKHR(totalStockValue)}
           </div>
           <span className="text-xs text-slate-500 mt-1 block">
             {inventory.length} {lang === 'km' ? 'មុខទំនិញ' : 'tracked items'}
@@ -163,8 +164,8 @@ export default function StockInventoryView() {
                 <th className="px-6 py-4">SKU / Item</th>
                 <th className="px-6 py-4">{lang === 'km' ? 'ប្រភេទ' : 'Type'}</th>
                 <th className="px-6 py-4">{lang === 'km' ? 'ចំនួនក្នុងស្តុក' : 'On Hand'}</th>
-                <th className="px-6 py-4">{lang === 'km' ? 'ថ្លៃដើម/ឯកតា' : 'Unit Cost'}</th>
-                <th className="px-6 py-4">{lang === 'km' ? 'តម្លៃស្តុកសរុប' : 'Total Value'}</th>
+                <th className="px-6 py-4">{lang === 'km' ? 'ថ្លៃដើម/ឯកតា (៛)' : 'Unit Cost (៛)'}</th>
+                <th className="px-6 py-4">{lang === 'km' ? 'តម្លៃស្តុកសរុប (៛)' : 'Total Value (៛)'}</th>
                 <th className="px-6 py-4">{lang === 'km' ? 'ស្ថានភាព' : 'Status'}</th>
                 <th className="px-6 py-4 text-right">{lang === 'km' ? 'កែសម្រួល' : 'Action'}</th>
               </tr>
@@ -191,10 +192,10 @@ export default function StockInventoryView() {
                       <span className="text-xs font-normal text-slate-400">{item.unit}</span>
                     </td>
                     <td className="px-6 py-4 text-slate-700 font-medium">
-                      ${item.unit_cost.toFixed(2)}
+                      {formatKHR(item.unit_cost)}
                     </td>
                     <td className="px-6 py-4 font-semibold text-slate-900">
-                      ${totalValue.toFixed(2)}
+                      {formatKHR(totalValue)}
                     </td>
                     <td className="px-6 py-4">
                       {isLow ? (

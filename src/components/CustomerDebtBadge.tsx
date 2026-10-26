@@ -1,6 +1,6 @@
 import React from 'react';
 import { AlertCircle, AlertTriangle, CheckCircle, ShieldAlert } from 'lucide-react';
-import { formatUSD, formatKHR } from '@/lib/utils';
+import { formatKHR } from '@/lib/utils';
 
 export interface CustomerDebtBadgeProps {
   currentBalance: number;
@@ -68,7 +68,7 @@ export default function CustomerDebtBadge({
     return (
       <div
         className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${badgeStyle.bg} ${className}`}
-        title={`Balance: ${formatKHR(currentBalance)} (${formatUSD(currentBalance)}) / Limit: ${formatKHR(creditLimit)}`}
+        title={`Balance: ${formatKHR(currentBalance)} / Limit: ${formatKHR(creditLimit)}`}
       >
         <Icon className={`h-3.5 w-3.5 shrink-0 ${badgeStyle.iconColor}`} />
         <span className="tabular-nums font-mono">
@@ -95,9 +95,6 @@ export default function CustomerDebtBadge({
         <div className="text-right">
           <span className="font-mono text-xs font-black tabular-nums block">
             {formatKHR(currentBalance)}
-          </span>
-          <span className="text-[10px] text-slate-400 font-normal">
-            {formatUSD(currentBalance)}
           </span>
         </div>
       </div>

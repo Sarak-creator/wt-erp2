@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { translations } from '@/lib/i18n';
-import { formatUSD, formatKHR } from '@/lib/utils';
+import { formatKHR } from '@/lib/utils';
 import BottleCounter from '@/components/BottleCounter';
 import { Order, OrderStatus } from '@/types/database';
 import {
@@ -231,7 +231,7 @@ export default function DriverDispatchView() {
                     <div>
                       <span className="text-slate-500">Total: </span>
                       <span className="font-bold text-blue-600">
-                        {formatUSD(order.total_amount)}
+                        {formatKHR(order.total_amount)}
                       </span>
                       <span
                         className={`ml-1 text-[10px] font-bold uppercase ${
@@ -415,24 +415,21 @@ export default function DriverDispatchView() {
                   <div className="rounded-2xl bg-emerald-50 border border-emerald-200/80 p-3.5 space-y-1.5">
                     <div className="flex items-center justify-between text-xs text-emerald-800">
                       <span>{lang === 'km' ? `ថ្លៃទឹក (${deliveredCount} ធុង):` : `Water (${deliveredCount} btl):`}</span>
-                      <span className="font-bold tabular-nums font-mono">{formatUSD(waterAmount)}</span>
+                      <span className="font-bold tabular-nums font-mono">{formatKHR(waterAmount)}</span>
                     </div>
                     {depositCharge > 0 && (
                       <div className="flex items-center justify-between text-xs text-amber-800">
-                        <span>{lang === 'km' ? `កក់សំបកខ្វះ (${bottleDiff} ធុង @ $3):` : `Deposit diff (${bottleDiff} btl):`}</span>
-                        <span className="font-bold tabular-nums font-mono">+{formatUSD(depositCharge)}</span>
+                        <span>{lang === 'km' ? `កក់សំបកខ្វះ (${bottleDiff} ធុង @ 12,000 ៛):` : `Deposit diff (${bottleDiff} btl @ 12,000 ៛):`}</span>
+                        <span className="font-bold tabular-nums font-mono">+{formatKHR(depositCharge)}</span>
                       </div>
                     )}
                     <div className="pt-2 border-t border-emerald-200/60 flex items-baseline justify-between">
                       <span className="text-xs font-black text-emerald-950 uppercase">
-                        {lang === 'km' ? 'ប្រាក់ត្រូវប្រមូល (Collected Money):' : 'Collected Money:'}
+                        {lang === 'km' ? 'ប្រាក់ត្រូវប្រមូល:' : 'Collected Money:'}
                       </span>
                       <div className="text-right">
                         <span className="text-xl font-black text-emerald-800 tabular-nums font-mono">
-                          {formatUSD(totalCollectedMoney)}
-                        </span>
-                        <span className="text-[10px] text-emerald-600 block">
-                          ≈ {formatKHR(totalCollectedMoney)}
+                          {formatKHR(totalCollectedMoney)}
                         </span>
                       </div>
                     </div>

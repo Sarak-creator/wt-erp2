@@ -203,18 +203,18 @@ export default function SettingsView() {
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-600 mb-1">
-                {lang === 'km' ? 'តម្លៃកក់ដប ២០លីត្រ ($/ដប)' : '20L Bottle Deposit Fee ($/bottle)'}
+                {lang === 'km' ? 'តម្លៃកក់ដប ២០លីត្រ (ស្មើនឹង ៛)' : '20L Bottle Deposit Fee (Riel eq)'}
               </label>
               <input
                 type="number"
-                step="0.01"
+                step="0.1"
                 required
                 value={bottleDepositRate}
                 onChange={(e) => setBottleDepositRate(parseFloat(e.target.value) || 3.0)}
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <span className="text-[11px] text-emerald-600 font-semibold mt-1 block">
-                ~ {Math.round(Number(bottleDepositRate) * Number(khmerRate)).toLocaleString()} ៛ / {lang === 'km' ? 'ដប' : 'bottle'}
+                = {Math.round(Number(bottleDepositRate) * Number(khmerRate)).toLocaleString()} ៛ / {lang === 'km' ? 'ដប' : 'bottle'}
               </span>
             </div>
           </div>

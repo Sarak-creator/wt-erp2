@@ -181,7 +181,6 @@ export default function OrdersView() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="font-bold text-slate-900">{formatKHR(order.total_amount)}</div>
-                      <span className="text-[11px] text-slate-400 block">${order.total_amount.toFixed(2)}</span>
                       <span
                         className={`text-[10px] font-bold uppercase ${
                           order.payment_status === 'paid'

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { Purchase } from '@/types/database';
-import { formatKHR, formatUSD } from '@/lib/utils';
+import { formatKHR } from '@/lib/utils';
 import {
   Truck,
   Plus,
@@ -136,7 +136,7 @@ export default function PurchasesView() {
             {formatKHR(totalPurchases)}
           </div>
           <span className="text-xs text-slate-500 mt-1 block">
-            USD: ${totalPurchases.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} • {purchases.length} {lang === 'km' ? 'ការបញ្ជាទិញ' : 'orders'}
+            {purchases.length} {lang === 'km' ? 'ការបញ្ជាទិញ' : 'orders'}
           </span>
         </div>
 
@@ -203,7 +203,6 @@ export default function PurchasesView() {
                   </td>
                   <td className="px-6 py-4 text-right font-bold text-slate-900 text-base">
                     <div>{formatKHR(p.total_amount)}</div>
-                    <span className="text-xs font-normal text-slate-400">${p.total_amount.toFixed(2)}</span>
                   </td>
                 </tr>
               ))}
@@ -303,7 +302,7 @@ export default function PurchasesView() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1">
-                    {lang === 'km' ? 'ថ្លៃដើម/ឯកតា ($)' : 'Unit Cost ($)'}
+                    {lang === 'km' ? 'ថ្លៃដើម/ឯកតា (៛)' : 'Unit Cost (៛)'}
                   </label>
                   <input
                     type="number"
@@ -323,9 +322,6 @@ export default function PurchasesView() {
                 <div className="text-right">
                   <span className="text-base font-bold text-cyan-900 block">
                     {formatKHR(Number(quantity) * Number(unitCost))}
-                  </span>
-                  <span className="text-[11px] text-cyan-700">
-                    ${(Number(quantity) * Number(unitCost)).toFixed(2)}
                   </span>
                 </div>
               </div>

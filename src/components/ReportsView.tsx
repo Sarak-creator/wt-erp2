@@ -12,7 +12,7 @@ import {
   RefreshCw,
   FileSpreadsheet,
 } from 'lucide-react';
-import { formatKHR, formatUSD } from '@/lib/utils';
+import { formatKHR } from '@/lib/utils';
 
 export default function ReportsView() {
   const {
@@ -81,7 +81,7 @@ export default function ReportsView() {
             {formatKHR(grossRevenue)}
           </div>
           <span className="text-xs text-slate-500 font-semibold mt-1 block">
-            USD: ${grossRevenue.toFixed(2)} • {deliveredOrders.length} {lang === 'km' ? 'ការបញ្ជាទិញ' : 'orders'}
+            {deliveredOrders.length} {lang === 'km' ? 'ការបញ្ជាទិញ' : 'orders'}
           </span>
         </div>
 
@@ -93,7 +93,7 @@ export default function ReportsView() {
             {formatKHR(estimatedCogs + totalExpenses)}
           </div>
           <span className="text-xs text-slate-500 mt-1 block">
-            USD: ${(estimatedCogs + totalExpenses).toFixed(2)} (COGS: {formatKHR(estimatedCogs)} | Exp: {formatKHR(totalExpenses)})
+            COGS: {formatKHR(estimatedCogs)} | Exp: {formatKHR(totalExpenses)}
           </span>
         </div>
 
@@ -105,7 +105,7 @@ export default function ReportsView() {
             {formatKHR(netProfit)}
           </div>
           <span className="text-xs text-slate-500 mt-1 block">
-            USD: ${netProfit.toFixed(2)} • {netMargin.toFixed(1)}% {lang === 'km' ? 'ផលចំណេញ' : 'margin'}
+            {netMargin.toFixed(1)}% {lang === 'km' ? 'ផលចំណេញ' : 'margin'}
           </span>
         </div>
 
@@ -171,7 +171,7 @@ export default function ReportsView() {
                     )}
                   </div>
                   <div className="text-right">
-                    <span className="font-bold text-xs text-emerald-600">${custRev.toFixed(2)}</span>
+                    <span className="font-bold text-xs text-emerald-600">{formatKHR(custRev)}</span>
                     <span className="text-[10px] text-slate-400 block">
                       {cust.empty_bottles_held} bottles held
                     </span>
