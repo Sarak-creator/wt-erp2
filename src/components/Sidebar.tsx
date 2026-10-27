@@ -20,6 +20,8 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   X,
+  BookOpen,
+  DollarSign,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -154,12 +156,36 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
       badgeColor: 'bg-indigo-100 text-indigo-800',
     },
     {
+      id: 'logistics',
+      label: lang === 'km' ? 'ចាត់ចែងដឹកជញ្ជូន' : 'Driver Dispatch',
+      icon: Truck,
+      allowed: ['admin', 'driver', 'inventory_manager'] as UserRole[],
+      badge: 'Dispatch',
+      badgeColor: 'bg-sky-100 text-sky-800',
+    },
+    {
+      id: 'finance',
+      label: lang === 'km' ? 'ហិរញ្ញវត្ថុ & P&L' : 'Financial Dashboard',
+      icon: DollarSign,
+      allowed: ['admin', 'accountant'] as UserRole[],
+      badge: 'P&L',
+      badgeColor: 'bg-emerald-100 text-emerald-800',
+    },
+    {
       id: 'settings',
       label: lang === 'km' ? 'ការកំណត់' : 'Settings',
       icon: Settings,
       allowed: ['admin'] as UserRole[],
       badge: 'Supabase',
       badgeColor: 'bg-emerald-100 text-emerald-800',
+    },
+    {
+      id: 'guide',
+      label: lang === 'km' ? '📖 របៀបប្រើប្រាស់' : 'User Guide',
+      icon: BookOpen,
+      allowed: ['admin', 'cashier', 'driver', 'accountant', 'inventory_manager'] as UserRole[],
+      badge: 'Manual',
+      badgeColor: 'bg-blue-100 text-blue-800',
     },
   ];
 

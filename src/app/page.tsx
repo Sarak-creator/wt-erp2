@@ -21,6 +21,7 @@ import BottleLedgerView from '@/components/BottleLedgerView';
 import DriverDispatchView from '@/components/DriverDispatchView';
 import FinancialDashboardView from '@/components/FinancialDashboardView';
 import ManufacturingView from '@/components/ManufacturingView';
+import UserGuideView from '@/components/UserGuideView';
 
 import { useAppStore } from '@/lib/store';
 
@@ -60,7 +61,7 @@ export default function Home() {
 
   return (
     <div className="flex h-[100dvh] max-h-[100dvh] flex-col bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 overflow-hidden">
-      <Header />
+      <Header currentTab={currentTab} setCurrentTab={setCurrentTab} />
 
       <div className="flex flex-1 overflow-hidden min-h-0">
         <Sidebar currentTab={currentTab} setCurrentTab={setCurrentTab} />
@@ -81,6 +82,7 @@ export default function Home() {
           {currentTab === 'manufacturing' && <ManufacturingView />}
           {currentTab === 'logistics' && <DriverDispatchView />}
           {currentTab === 'finance' && <FinancialDashboardView />}
+          {currentTab === 'guide' && <UserGuideView />}
         </main>
       </div>
 
