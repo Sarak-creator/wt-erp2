@@ -454,14 +454,14 @@ export default function PosView() {
 
         {/* RIGHT COLUMN: POS Cart & Checkout Terminal (5 cols on md, 4 on xl, sticky top-2 aligned flush with Catalog) */}
         <div
-          className={`md:col-span-5 xl:col-span-4 flex flex-col bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-3.5 sm:p-4 md:sticky md:top-2 md:max-h-[calc(100dvh-6.5rem)] md:overflow-y-auto space-y-3 ${
+          className={`md:col-span-5 xl:col-span-4 flex flex-col bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-3.5 sm:p-4 md:sticky md:top-2 md:max-h-[calc(100dvh-6.5rem)] md:overflow-y-auto overflow-x-hidden space-y-3 ${
             posMobileTab === 'cart' ? 'flex' : 'hidden md:flex'
           }`}
         >
-          <div>
+          <div className="overflow-hidden">
             {/* Cart Header */}
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-0">
                 {/* On mobile, allow quick back to catalog */}
                 <button
                   type="button"
@@ -471,11 +471,11 @@ export default function PosView() {
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </button>
-                <ShoppingCart className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                <h2 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">
+                <ShoppingCart className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
+                <h2 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base truncate">
                   {lang === 'km' ? 'កន្ត្រកទំនិញ' : 'Current Sale Cart'}
                 </h2>
-                <span className="rounded-full bg-blue-100 dark:bg-blue-900/60 px-2 py-0.5 text-xs font-bold text-blue-700 dark:text-blue-300">
+                <span className="rounded-full bg-blue-100 dark:bg-blue-900/60 px-2 py-0.5 text-xs font-bold text-blue-700 dark:text-blue-300 shrink-0">
                   {cart.length}
                 </span>
               </div>
@@ -488,7 +488,7 @@ export default function PosView() {
                     setDiscountAmountInput(0);
                     setDiscountType('percent');
                   }}
-                  className="text-xs text-rose-500 hover:text-rose-700 font-medium flex items-center gap-1"
+                  className="text-xs text-rose-500 hover:text-rose-700 font-medium flex items-center gap-1 shrink-0 ml-2"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                   {lang === 'km' ? 'សម្អាត' : 'Clear'}
@@ -496,8 +496,8 @@ export default function PosView() {
               )}
             </div>
 
-            {/* Cart Line Items */}
-            <div className="my-2.5 max-h-[160px] sm:max-h-[190px] xl:max-h-[220px] overflow-y-auto space-y-2 pr-1">
+            {/* Cart Line Items (No Horizontal Scroll) */}
+            <div className="my-2.5 max-h-[160px] sm:max-h-[190px] xl:max-h-[220px] overflow-y-auto overflow-x-hidden space-y-2 pr-0.5">
               {cart.length === 0 ? (
                 <div className="text-center py-8 text-slate-400">
                   <ShoppingCart className="h-10 w-10 mx-auto opacity-30 mb-2" />
@@ -507,39 +507,39 @@ export default function PosView() {
                 cart.map((ci) => (
                   <div
                     key={ci.item.id}
-                    className="flex items-center justify-between bg-slate-50 dark:bg-slate-700/40 rounded-xl p-2 sm:p-2.5 text-xs border border-slate-100 dark:border-slate-700/60"
+                    className="flex items-center justify-between bg-slate-50 dark:bg-slate-700/40 rounded-xl p-2 sm:p-2.5 text-xs border border-slate-100 dark:border-slate-700/60 overflow-hidden"
                   >
-                    <div className="flex-1 min-w-0 pr-2">
+                    <div className="flex-1 min-w-0 pr-1.5 overflow-hidden">
                       <span className="font-bold text-slate-800 dark:text-slate-100 block truncate">
                         {lang === 'km' && ci.item.name_kh ? ci.item.name_kh : ci.item.name}
                       </span>
-                      <span className="text-slate-500 dark:text-slate-400 text-[11px]">
+                      <span className="text-slate-500 dark:text-slate-400 text-[11px] block truncate">
                         {formatKHR(ci.unitPrice)} / {ci.item.unit}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                    <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
                       <div className="flex items-center border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 overflow-hidden">
                         <button
                           type="button"
                           onClick={() => updateCartQty(ci.item.id, ci.quantity - 1)}
-                          className="px-1.5 sm:px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200"
+                          className="px-1.5 py-1 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200"
                         >
                           <Minus className="h-3 w-3" />
                         </button>
-                        <span className="w-6 sm:w-7 text-center font-bold text-slate-800 dark:text-slate-100 text-xs">
+                        <span className="w-5 sm:w-6 text-center font-bold text-slate-800 dark:text-slate-100 text-xs">
                           {ci.quantity}
                         </span>
                         <button
                           type="button"
                           onClick={() => updateCartQty(ci.item.id, ci.quantity + 1)}
-                          className="px-1.5 sm:px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200"
+                          className="px-1.5 py-1 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200"
                         >
                           <Plus className="h-3 w-3" />
                         </button>
                       </div>
 
-                      <span className="w-16 sm:w-20 text-right font-bold text-slate-900 dark:text-white text-xs">
+                      <span className="text-right font-bold text-slate-900 dark:text-white text-xs whitespace-nowrap min-w-[50px]">
                         {formatKHR(ci.lineTotal)}
                       </span>
 
@@ -548,7 +548,7 @@ export default function PosView() {
                         onClick={() => removeFromCart(ci.item.id)}
                         className="text-slate-400 hover:text-rose-500 p-0.5"
                       >
-                        <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                        <X className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </div>
@@ -558,58 +558,58 @@ export default function PosView() {
           </div>
 
           {/* Cart Bottom Summary & Checkout */}
-          <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-3">
+          <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-3 overflow-hidden">
             {/* Multi-mode Discount Selector: Percent (%) | Cash Riel (៛) | 100% Free (ឥតគិតថ្លៃ) */}
-            <div className="bg-slate-50 dark:bg-slate-700/30 rounded-xl p-2.5 border border-slate-200/80 dark:border-slate-700 space-y-2">
+            <div className="bg-slate-50 dark:bg-slate-700/30 rounded-xl p-2.5 border border-slate-200/80 dark:border-slate-700 space-y-2 overflow-hidden">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-700 dark:text-slate-200">
-                  <Tag className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                  <span>{lang === 'km' ? 'បញ្ចុះតម្លៃ (Discount)' : 'Discount'}</span>
+                  <Tag className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+                  <span className="truncate">{lang === 'km' ? 'បញ្ចុះតម្លៃ (Discount)' : 'Discount'}</span>
                 </div>
                 {discountAmount > 0 && (
-                  <span className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
+                  <span className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 shrink-0">
                     -{formatKHR(discountAmount)}
                   </span>
                 )}
               </div>
 
               {/* 3-Mode Tab Switcher */}
-              <div className="grid grid-cols-3 gap-1 bg-slate-200/70 dark:bg-slate-800 p-0.5 rounded-lg text-xs font-semibold">
+              <div className="grid grid-cols-3 gap-1 bg-slate-200/70 dark:bg-slate-800 p-0.5 rounded-lg text-xs font-semibold overflow-hidden">
                 <button
                   type="button"
                   onClick={() => setDiscountType('percent')}
-                  className={`flex items-center justify-center gap-1 py-1 px-1 rounded-md transition-all text-[11px] ${
+                  className={`flex items-center justify-center gap-1 py-1 px-1 rounded-md transition-all text-[11px] min-w-0 overflow-hidden ${
                     discountType === 'percent'
                       ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm font-bold'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                   }`}
                 >
-                  <Percent className="h-3 w-3" />
-                  <span>{lang === 'km' ? 'ភាគរយ (%)' : 'Percent'}</span>
+                  <Percent className="h-3 w-3 shrink-0" />
+                  <span className="truncate">{lang === 'km' ? 'ភាគរយ (%)' : 'Percent'}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setDiscountType('amount')}
-                  className={`flex items-center justify-center gap-1 py-1 px-1 rounded-md transition-all text-[11px] ${
+                  className={`flex items-center justify-center gap-1 py-1 px-1 rounded-md transition-all text-[11px] min-w-0 overflow-hidden ${
                     discountType === 'amount'
                       ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm font-bold'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                   }`}
                 >
-                  <Coins className="h-3 w-3" />
-                  <span>{lang === 'km' ? 'លុយរៀល (៛)' : 'KHR (៛)'}</span>
+                  <Coins className="h-3 w-3 shrink-0" />
+                  <span className="truncate">{lang === 'km' ? 'លុយរៀល (៛)' : 'KHR (៛)'}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setDiscountType('free')}
-                  className={`flex items-center justify-center gap-1 py-1 px-1 rounded-md transition-all text-[11px] ${
+                  className={`flex items-center justify-center gap-1 py-1 px-1 rounded-md transition-all text-[11px] min-w-0 overflow-hidden ${
                     discountType === 'free'
                       ? 'bg-emerald-600 text-white shadow-sm font-bold'
                       : 'text-emerald-700 dark:text-emerald-400 hover:text-emerald-800'
                   }`}
                 >
-                  <Gift className="h-3 w-3" />
-                  <span>{lang === 'km' ? 'ឥតគិតថ្លៃ' : 'Free'}</span>
+                  <Gift className="h-3 w-3 shrink-0" />
+                  <span className="truncate">{lang === 'km' ? 'ឥតគិតថ្លៃ' : 'Free'}</span>
                 </button>
               </div>
 
