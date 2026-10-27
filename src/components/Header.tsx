@@ -12,7 +12,6 @@ import {
   Sun,
   Moon,
   Menu,
-  BookOpen,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -101,21 +100,6 @@ export default function Header({ currentTab, setCurrentTab }: HeaderProps = {}) 
           />
         </div>
 
-        {/* Master User Guide Launcher Button */}
-        {setCurrentTab && (
-          <button
-            onClick={() => setCurrentTab('guide')}
-            className={`flex items-center gap-1.5 rounded-lg border px-2 py-1 text-xs font-bold transition-all shadow-sm h-7 sm:h-8 ${
-              currentTab === 'guide'
-                ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 ring-2 ring-blue-500/20'
-                : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700'
-            }`}
-            title={lang === 'km' ? 'សៀវភៅណែនាំប្រើប្រាស់ App ទាំងមូល' : 'Master App User Guide'}
-          >
-            <BookOpen className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-            <span className="hidden lg:inline">{lang === 'km' ? 'របៀបប្រើប្រាស់' : 'Guide'}</span>
-          </button>
-        )}
 
 
         {/* Language Toggle */}
