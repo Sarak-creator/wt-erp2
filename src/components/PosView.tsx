@@ -454,11 +454,11 @@ export default function PosView() {
 
         {/* RIGHT COLUMN: POS Cart & Checkout Terminal (Entire Cart container scrolls vertically) */}
         <div
-          className={`pos-cart-container md:col-span-5 xl:col-span-4 flex flex-col bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-3.5 sm:p-4 pb-8 sm:pb-10 space-y-3.5 ${
+          className={`pos-cart-container md:col-span-5 xl:col-span-4 flex flex-col [&>*]:shrink-0 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-3.5 sm:p-4 pb-10 sm:pb-12 space-y-3.5 ${
             posMobileTab === 'cart' ? 'flex' : 'hidden md:flex'
           }`}
         >
-          <div>
+          <div className="shrink-0">
             {/* Cart Header */}
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700">
               <div className="flex items-center gap-2">
@@ -568,7 +568,7 @@ export default function PosView() {
           </div>
 
           {/* Cart Bottom Summary & Checkout */}
-          <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-3 overflow-hidden">
+          <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-3 shrink-0">
             {/* Multi-mode Discount Selector: Percent (%) | Cash Riel (៛) | 100% Free (ឥតគិតថ្លៃ) */}
             <div className="bg-slate-50 dark:bg-slate-700/30 rounded-xl p-2.5 border border-slate-200/80 dark:border-slate-700 space-y-2 overflow-hidden">
               <div className="flex items-center justify-between">

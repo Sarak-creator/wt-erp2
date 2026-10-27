@@ -198,16 +198,15 @@ select:focus {
   overflow-x: hidden !important;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 2rem !important;
+  overscroll-behavior-y: contain;
 }
 
 @media (min-width: 768px) {
   .pos-cart-container {
-    max-height: calc(100vh - 7.5rem);
-    max-height: calc(100dvh - 7.5rem);
+    max-height: calc(100vh - 6.5rem);
+    max-height: calc(100dvh - 6.5rem);
     position: sticky;
     top: 0.5rem;
-    padding-bottom: 2rem !important;
   }
 }
 
