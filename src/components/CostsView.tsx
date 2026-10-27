@@ -243,17 +243,16 @@ export default function CostsView() {
                 <label className="block text-xs font-semibold text-slate-600 mb-1">
                   {lang === 'km' ? 'ប្រភេទចំណាយ' : 'Category'}
                 </label>
-                <select
+                <CustomSelect
                   value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
-                >
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.label}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => setCategory(val)}
+                  options={categories.map((c) => ({
+                    value: c.id,
+                    label: c.label,
+                  }))}
+                  className="w-full"
+                  buttonClassName="w-full py-2 px-3 text-sm"
+                />
               </div>
 
               <div>

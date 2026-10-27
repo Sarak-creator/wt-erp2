@@ -16,6 +16,7 @@ import {
   RefreshCw,
   Boxes,
 } from 'lucide-react';
+import CustomSelect from '@/components/ui/CustomSelect';
 
 export default function PurchasesView() {
   const { lang, purchases, inventory, addPurchase, fetchFromSupabase, isSyncing } = useAppStore();
@@ -266,24 +267,25 @@ export default function PurchasesView() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
                   {lang === 'km' ? 'ជ្រើសរើសទំនិញចូលស្តុក' : 'Select Inventory Item to Restock'}
                 </label>
-                <select
+                <CustomSelect
                   value={selectedItemId}
-                  onChange={(e) => {
-                    setSelectedItemId(e.target.value);
-                    const itm = inventory.find((i) => i.id === e.target.value);
+                  onChange={(val) => {
+                    setSelectedItemId(val);
+                    const itm = inventory.find((i) => i.id === val);
                     if (itm) setUnitCost(itm.unit_cost);
                   }}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                >
-                  {inventory.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name} ({item.sku}) - Current: {item.qty_on_hand} {item.unit}
-                    </option>
-                  ))}
-                </select>
+                  searchable={true}
+                  options={inventory.map((item) => ({
+                    value: item.id,
+                    label: `${item.name} (${item.sku})`,
+                    badge: `${item.qty_on_hand} ${item.unit}`,
+                    badgeColor: 'blue' as const,
+                  }))}
+                  placeholder={lang === 'km' ? '-- ជ្រើសរើសទំនិញ --' : '-- Select item --'}
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -328,30 +330,50 @@ export default function PurchasesView() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
                     {lang === 'km' ? 'ស្ថានភាពទូទាត់' : 'Payment Status'}
                   </label>
-                  <select
+                  <CustomSelect
                     value={paymentStatus}
-                    onChange={(e) => setPaymentStatus(e.target.value as any)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                  >
-                    <option value="paid">Paid (ទូទាត់រួច)</option>
-                    <option value="unpaid">Unpaid (ជំពាក់អ្នកផ្គត់ផ្គង់)</option>
-                  </select>
+                    onChange={(val) => setPaymentStatus(val as any)}
+                    options={[
+                      {
+                        value: 'paid',
+                        label: lang === 'km' ? 'បានទូទាត់រួច (Paid)' : 'Paid (ទូទាត់រួច)',
+                        badge: 'Paid',
+                        badgeColor: 'emerald',
+                      },
+                      {
+                        value: 'unpaid',
+                        label: lang === 'km' ? 'ជំពាក់អ្នកផ្គត់ផ្គង់ (Unpaid)' : 'Unpaid (ជំពាក់)',
+                        badge: 'Unpaid',
+                        badgeColor: 'rose',
+                      },
+                    ]}
+                  />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
                     {lang === 'km' ? 'វិធីសាស្ត្រទូទាត់' : 'Payment Method'}
                   </label>
-                  <select
+                  <CustomSelect
                     value={paymentMethod}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                  >
-                    <option value="cash">Cash</option>
-                    <option value="bank_transfer">ABA / Bank</option>
-                  </select>
+                    onChange={(val) => setPaymentMethod(val)}
+                    options={[
+                      {
+                        value: 'cash',
+                        label: 'Cash (សាច់ប្រាក់)',
+                        badge: 'Cash',
+                        badgeColor: 'amber',
+                      },
+                      {
+                        value: 'bank_transfer',
+                        label: 'ABA / Bank Transfer (ធនាគារ)',
+                        badge: 'ABA',
+                        badgeColor: 'blue',
+                      },
+                    ]}
+                  />
                 </div>
               </div>
 

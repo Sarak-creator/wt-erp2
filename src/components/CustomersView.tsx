@@ -522,15 +522,17 @@ export default function CustomersView() {
                 <label className="block text-xs font-semibold text-slate-600 mb-1">
                   {lang === 'km' ? 'វិធីសាស្ត្រទូទាត់' : 'Payment Method'}
                 </label>
-                <select
+                <CustomSelect
                   value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                >
-                  <option value="cash">Cash (សាច់ប្រាក់សុទ្ធ)</option>
-                  <option value="khqr">Bakong / KHQR</option>
-                  <option value="bank_transfer">ABA / Bank Transfer</option>
-                </select>
+                  onChange={(val) => setPaymentMethod(val)}
+                  options={[
+                    { value: 'cash', label: 'Cash (សាច់ប្រាក់សុទ្ធ)', badge: 'Cash', badgeColor: 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300' },
+                    { value: 'khqr', label: 'Bakong / KHQR', badge: 'KHQR', badgeColor: 'bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300' },
+                    { value: 'bank_transfer', label: 'ABA / Bank Transfer', badge: 'Bank', badgeColor: 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300' },
+                  ]}
+                  className="w-full"
+                  buttonClassName="w-full py-2 px-3 text-sm"
+                />
               </div>
 
               <div>

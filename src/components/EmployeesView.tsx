@@ -18,6 +18,7 @@ import {
   RefreshCw,
   Truck,
 } from 'lucide-react';
+import CustomSelect from '@/components/ui/CustomSelect';
 
 export default function EmployeesView() {
   const { lang, employees, addEmployee, updateEmployee, fetchFromSupabase, isSyncing } = useAppStore();
@@ -300,17 +301,19 @@ export default function EmployeesView() {
                   <label className="block text-xs font-semibold text-slate-600 mb-1">
                     {lang === 'km' ? 'តួនាទី' : 'Role / Position'}
                   </label>
-                  <select
+                  <CustomSelect
                     value={role}
-                    onChange={(e) => setRole(e.target.value as any)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="driver">Driver (អ្នកដឹកជញ្ជូន)</option>
-                    <option value="operator">Plant Operator (អ្នកបញ្ជាម៉ាស៊ីន)</option>
-                    <option value="cashier">Cashier (បេឡាករ)</option>
-                    <option value="manager">Manager (អ្នកគ្រប់គ្រង)</option>
-                    <option value="admin">Administrator (រដ្ឋបាល)</option>
-                  </select>
+                    onChange={(val) => setRole(val as any)}
+                    options={[
+                      { value: 'driver', label: 'Driver (អ្នកដឹកជញ្ជូន)', badge: 'Logistics' },
+                      { value: 'operator', label: 'Plant Operator (អ្នកបញ្ជាម៉ាស៊ីន)', badge: 'Production' },
+                      { value: 'cashier', label: 'Cashier (បេឡាករ)', badge: 'POS' },
+                      { value: 'manager', label: 'Manager (អ្នកគ្រប់គ្រង)', badge: 'Management' },
+                      { value: 'admin', label: 'Administrator (រដ្ឋបាល)', badge: 'Full' },
+                    ]}
+                    className="w-full"
+                    buttonClassName="w-full py-2 px-3 text-sm"
+                  />
                 </div>
               </div>
 
@@ -346,15 +349,17 @@ export default function EmployeesView() {
                   <label className="block text-xs font-semibold text-slate-600 mb-1">
                     {lang === 'km' ? 'ប្រភេទបៀវត្សរ៍' : 'Salary Type'}
                   </label>
-                  <select
+                  <CustomSelect
                     value={salaryType}
-                    onChange={(e) => setSalaryType(e.target.value as any)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="monthly">Monthly</option>
-                    <option value="daily">Daily</option>
-                    <option value="commission">Commission</option>
-                  </select>
+                    onChange={(val) => setSalaryType(val as any)}
+                    options={[
+                      { value: 'monthly', label: 'Monthly' },
+                      { value: 'daily', label: 'Daily' },
+                      { value: 'commission', label: 'Commission' },
+                    ]}
+                    className="w-full"
+                    buttonClassName="w-full py-2 px-3 text-sm"
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1">

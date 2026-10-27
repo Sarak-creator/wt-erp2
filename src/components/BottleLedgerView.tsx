@@ -19,6 +19,7 @@ import {
   X,
   Droplet,
 } from 'lucide-react';
+import CustomSelect from '@/components/ui/CustomSelect';
 
 export default function BottleLedgerView() {
   const {
@@ -197,20 +198,21 @@ export default function BottleLedgerView() {
             {lang === 'km' ? 'សមតុល្យធុងតាមអតិថិជន' : 'Customer Bottle & Deposit Ledger Balance'}
           </h3>
           {/* Customer filter */}
-          <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-slate-400" />
-            <select
+          <div className="min-w-[180px]">
+            <CustomSelect
               value={selectedCustomerId}
-              onChange={(e) => setSelectedCustomerId(e.target.value)}
-              className="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 focus:outline-none"
-            >
-              <option value="all">{t.common.all} ({customers.length})</option>
-              {customers.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => setSelectedCustomerId(val)}
+              icon={Filter}
+              options={[
+                { value: 'all', label: `${t.common.all} (${customers.length})`, badge: 'All' },
+                ...customers.map((c) => ({
+                  value: c.id,
+                  label: c.name,
+                  badge: `${c.empty_bottles_held} ធុង`,
+                })),
+              ]}
+              buttonClassName="py-1.5 px-3 text-xs"
+            />
           </div>
         </div>
 
@@ -349,18 +351,20 @@ export default function BottleLedgerView() {
                 <label className="font-bold text-slate-700 mb-1 block">
                   {lang === 'km' ? 'អតិថិជន' : 'Customer'}
                 </label>
-                <select
+                <CustomSelect
                   value={targetCustomerId}
-                  onChange={(e) => setTargetCustomerId(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 p-2.5 text-slate-800 font-medium focus:border-blue-500"
-                  required
-                >
-                  {customers.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name} - {c.business_name || c.phone} (បច្ចុប្បន្ន: {c.empty_bottles_held} ធុង)
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => setTargetCustomerId(val)}
+                  searchable={true}
+                  options={customers.map((c) => ({
+                    value: c.id,
+                    label: c.name,
+                    sublabel: c.business_name ? `${c.business_name} • ${c.phone}` : c.phone,
+                    badge: `${c.empty_bottles_held} ធុង`,
+                    badgeColor: 'bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300',
+                  }))}
+                  className="w-full"
+                  buttonClassName="w-full py-2.5 px-3 text-xs"
+                />
               </div>
 
               {/* Quantities Row */}

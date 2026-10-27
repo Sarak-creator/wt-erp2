@@ -16,6 +16,7 @@ import {
   X,
   RefreshCw,
 } from 'lucide-react';
+import CustomSelect from '@/components/ui/CustomSelect';
 
 export default function ProductsView() {
   const { lang, inventory, addInventoryItem, updateInventoryItem, fetchFromSupabase, isSyncing } =
@@ -306,19 +307,39 @@ export default function ProductsView() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
                     {lang === 'km' ? 'ប្រភេទ' : 'Category Type'}
                   </label>
-                  <select
+                  <CustomSelect
                     value={type}
-                    onChange={(e) => setType(e.target.value as any)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="finished_good">Finished Good (ទឹកបរិសុទ្ធ)</option>
-                    <option value="packaging">Packaging (សំបកដប/កេស)</option>
-                    <option value="raw_material">Raw Material (វត្ថុធាតុដើម)</option>
-                    <option value="asset">Asset (ឧបករណ៍)</option>
-                  </select>
+                    onChange={(val) => setType(val as any)}
+                    options={[
+                      {
+                        value: 'finished_good',
+                        label: lang === 'km' ? 'ទឹកបរិសុទ្ធ (Finished Good)' : 'Finished Good (ទឹកបរិសុទ្ធ)',
+                        badge: 'Finished',
+                        badgeColor: 'emerald',
+                      },
+                      {
+                        value: 'packaging',
+                        label: lang === 'km' ? 'សំបកដប/កេស (Packaging)' : 'Packaging (សំបកដប/កេស)',
+                        badge: 'Packaging',
+                        badgeColor: 'blue',
+                      },
+                      {
+                        value: 'raw_material',
+                        label: lang === 'km' ? 'វត្ថុធាតុដើម (Raw Material)' : 'Raw Material (វត្ថុធាតុដើម)',
+                        badge: 'Raw Material',
+                        badgeColor: 'amber',
+                      },
+                      {
+                        value: 'asset',
+                        label: lang === 'km' ? 'ឧបករណ៍/ទ្រព្យ (Asset)' : 'Asset (ឧបករណ៍)',
+                        badge: 'Asset',
+                        badgeColor: 'purple',
+                      },
+                    ]}
+                  />
                 </div>
               </div>
 
