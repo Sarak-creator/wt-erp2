@@ -452,9 +452,9 @@ export default function PosView() {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: POS Cart & Checkout Terminal (5 cols on md, 4 on xl, sticky top-2 aligned flush with Catalog) */}
+        {/* RIGHT COLUMN: POS Cart & Checkout Terminal (Entire Cart container scrolls vertically) */}
         <div
-          className={`md:col-span-5 xl:col-span-4 flex flex-col bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-3.5 sm:p-4 md:sticky md:top-2 md:max-h-[calc(100vh-5rem)] overflow-y-auto overflow-x-hidden space-y-3 ${
+          className={`md:col-span-5 xl:col-span-4 flex flex-col bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-3.5 sm:p-4 md:sticky md:top-2 md:max-h-[calc(100dvh-5.5rem)] overflow-y-auto overflow-x-hidden space-y-3.5 scroll-smooth ${
             posMobileTab === 'cart' ? 'flex' : 'hidden md:flex'
           }`}
         >
@@ -496,20 +496,18 @@ export default function PosView() {
               )}
             </div>
 
-            {/* Cart Line Items Header & Scroll Indicator */}
+            {/* Cart Line Items Header */}
             {cart.length > 0 && (
               <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 mt-2 px-0.5">
-                <span>{lang === 'km' ? 'មុខទំនិញ' : 'Items'} ({cart.length})</span>
-                {cart.length > 2 && (
-                  <span className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold flex items-center gap-1">
-                    <span>↕</span> {lang === 'km' ? 'រំកិលឡើងចុះ (Scroll)' : 'Scroll up/down'}
-                  </span>
-                )}
+                <span>{lang === 'km' ? 'មុខទំនិញក្នុងកន្ត្រក' : 'Cart Items'} ({cart.length})</span>
+                <span className="font-semibold text-slate-600 dark:text-slate-400">
+                  {cart.reduce((sum, ci) => sum + ci.quantity, 0)} {lang === 'km' ? 'ចំនួនសរុប' : 'total items'}
+                </span>
               </div>
             )}
 
-            {/* Cart Line Items (Smooth Vertical Scroll - No Horizontal Scroll) */}
-            <div className="my-2 max-h-[220px] sm:max-h-[260px] md:max-h-[280px] overflow-y-auto overflow-x-hidden space-y-2 pr-1.5 scroll-smooth">
+            {/* Cart Line Items (Rendered naturally - The ENTIRE Cart container scrolls) */}
+            <div className="my-2 space-y-2">
               {cart.length === 0 ? (
                 <div className="text-center py-8 text-slate-400">
                   <ShoppingCart className="h-10 w-10 mx-auto opacity-30 mb-2" />
