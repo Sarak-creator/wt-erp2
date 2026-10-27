@@ -38,8 +38,11 @@ export default function ManufacturingView() {
       '-' +
       Math.floor(10 + Math.random() * 90);
 
-    const finishedGood = inventory.find((i) => i.sku === 'FG-GAL-20L');
-    const finishedGoodId = finishedGood ? finishedGood.id : '22222222-2222-2222-2222-222222222201';
+    const finishedGood =
+      inventory.find((i) => i.sku === 'FG-GAL-20L') ||
+      inventory.find((i) => i.type === 'finished_good') ||
+      inventory[0];
+    const finishedGoodId = finishedGood ? finishedGood.id : null;
 
     const newBatch = {
       batch_number: batchNumber,

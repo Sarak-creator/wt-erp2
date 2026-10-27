@@ -1,15 +1,21 @@
 import { NextResponse } from 'next/server';
 
-const DEFAULT_SUPABASE_URL =
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const DEFAULT_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const DEFAULT_SERVICE_KEY =
-  process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  '';
 
 const getTarget = (request?: Request) => {
   const customUrl = request?.headers.get('x-custom-url');
   const customKey = request?.headers.get('x-custom-key');
   const url = (customUrl && customUrl.trim()) || DEFAULT_SUPABASE_URL;
   const key = (customKey && customKey.trim()) || DEFAULT_SERVICE_KEY;
+  if (!url || !key) {
+    throw new Error(
+      'Missing Supabase credentials. Please add NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in your Vercel Project Settings > Environment Variables.'
+    );
+  }
   return {
     url,
     headers: {
@@ -20,6 +26,27 @@ const getTarget = (request?: Request) => {
     },
   };
 };
+
+function sanitizePayload(data: any): any {
+  if (Array.isArray(data)) return data.map(sanitizePayload);
+  if (data !== null && typeof data === 'object') {
+    const cleaned: Record<string, any> = {};
+    for (const [k, v] of Object.entries(data)) {
+      // If client provided a temporary string ID that is not a valid UUID (e.g. 'exp-12345'), omit it so database auto-generates gen_random_uuid()
+      if (k === 'id' && typeof v === 'string' && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v)) {
+        continue;
+      }
+      // If a UUID/foreign key column is an empty string, convert to null so PostgreSQL does not error with invalid input syntax for type uuid: ""
+      if (typeof v === 'string' && v.trim() === '' && (k.endsWith('_id') || k === 'zone_id' || k === 'customer_id' || k === 'driver_id' || k === 'order_id' || k === 'operator_id')) {
+        cleaned[k] = null;
+      } else if (v !== undefined) {
+        cleaned[k] = sanitizePayload(v);
+      }
+    }
+    return cleaned;
+  }
+  return data;
+}
 
 export async function GET(request: Request) {
   try {
@@ -118,7 +145,8 @@ export async function POST(request: Request) {
   try {
     const { url, headers } = getTarget(request);
     const body = await request.json();
-    const { action, payload } = body;
+    const { action, payload: rawPayload } = body;
+    const payload = sanitizePayload(rawPayload);
 
     switch (action) {
       case 'add_order': {
@@ -247,10 +275,11 @@ export async function POST(request: Request) {
       }
 
       case 'add_employee': {
+        const { name_kh, ...empData } = payload;
         const res = await fetch(`${url}/rest/v1/employees`, {
           method: 'POST',
           headers,
-          body: JSON.stringify(payload),
+          body: JSON.stringify(empData),
         });
         if (!res.ok) {
           const errText = await res.text();
@@ -261,7 +290,7 @@ export async function POST(request: Request) {
       }
 
       case 'update_employee': {
-        const { id, ...updates } = payload;
+        const { id, name_kh, ...updates } = payload;
         const res = await fetch(`${url}/rest/v1/employees?id=eq.${id}`, {
           method: 'PATCH',
           headers,
@@ -290,10 +319,16 @@ export async function POST(request: Request) {
       }
 
       case 'add_debt_payment': {
+        const { receipt_no, ...debtData } = payload;
+        const record = {
+          ...debtData,
+          type: debtData.type || 'payment',
+          reference_no: payload.reference_no || receipt_no || `REC-${Date.now()}`,
+        };
         const res = await fetch(`${url}/rest/v1/customer_debts`, {
           method: 'POST',
           headers,
-          body: JSON.stringify(payload),
+          body: JSON.stringify(record),
         });
         if (!res.ok) {
           const errText = await res.text();
@@ -333,10 +368,14 @@ export async function POST(request: Request) {
       }
 
       case 'add_batch': {
+        const batchPayload = {
+          ...payload,
+          batch_number: payload.batch_number || `LOT-${Date.now()}`,
+        };
         const res = await fetch(`${url}/rest/v1/production_batches`, {
           method: 'POST',
           headers,
-          body: JSON.stringify(payload),
+          body: JSON.stringify(batchPayload),
         });
         if (!res.ok) {
           const errText = await res.text();
@@ -347,10 +386,15 @@ export async function POST(request: Request) {
       }
 
       case 'add_expense': {
+        const expensePayload = {
+          ...payload,
+          expense_number: payload.expense_number || `EXP-${Math.floor(1000 + Math.random() * 9000)}`,
+          description: (payload.description && String(payload.description).trim()) || payload.category || 'Operating expense',
+        };
         const res = await fetch(`${url}/rest/v1/expenses`, {
           method: 'POST',
           headers,
-          body: JSON.stringify(payload),
+          body: JSON.stringify(expensePayload),
         });
         if (!res.ok) {
           const errText = await res.text();

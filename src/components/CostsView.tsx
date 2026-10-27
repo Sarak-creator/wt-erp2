@@ -54,7 +54,7 @@ export default function CostsView() {
       expense_number: expenseNumber,
       category,
       amount: Number(amount),
-      description: description || category,
+      description: description.trim() || category || 'Operating expense',
       expense_date: expenseDate,
     });
 
@@ -67,8 +67,8 @@ export default function CostsView() {
   const filtered = expenses.filter((exp) => {
     const matchesCat = filterCategory === 'all' || exp.category === filterCategory;
     const matchesSearch =
-      exp.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      exp.expense_number.toLowerCase().includes(searchTerm.toLowerCase());
+      (exp.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (exp.expense_number || '').toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCat && matchesSearch;
   });
 

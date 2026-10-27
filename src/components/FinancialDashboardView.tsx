@@ -186,7 +186,6 @@ export default function FinancialDashboardView() {
     if (!expenseAmount || Number(expenseAmount) <= 0) return;
 
     const newExp = {
-      id: 'exp-' + Date.now(),
       expense_number: 'EXP-' + Math.floor(1000 + Math.random() * 9000),
       category: expenseCategory,
       amount: Number(expenseAmount),
