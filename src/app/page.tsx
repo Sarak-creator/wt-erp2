@@ -59,13 +59,13 @@ export default function Home() {
   }, [currentRole]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 pb-16 md:pb-0">
+    <div className="flex min-h-screen md:h-screen flex-col bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 pb-16 md:pb-0 md:overflow-hidden">
       <Header />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden min-h-0">
         <Sidebar currentTab={currentTab} setCurrentTab={setCurrentTab} />
 
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto min-h-0 min-w-0">
           {currentTab === 'products' && <ProductsView />}
           {currentTab === 'customers' && <CustomersView />}
           {currentTab === 'employers' && <EmployeesView />}

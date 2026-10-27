@@ -165,15 +165,15 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
 
   return (
     <>
-      {/* Desktop / Tablet Sidebar */}
+      {/* Desktop / Tablet Sidebar (Fixed & Independently Scrollable) */}
       <aside
         className={`${
           isCollapsed ? 'w-16 md:w-[72px]' : 'w-64'
-        } border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col justify-between shrink-0 hidden md:flex transition-all duration-300 ease-in-out`}
+        } border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col justify-between shrink-0 hidden md:flex sticky top-14 sm:top-16 h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] z-20 transition-all duration-300 ease-in-out`}
       >
-        <div>
+        <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
           {/* Sidebar Header & Collapse Toggle */}
-          <div className="flex items-center justify-between p-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center justify-between p-3 border-b border-slate-100 dark:border-slate-800 shrink-0">
             {!isCollapsed ? (
               <div className="px-1 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 truncate">
                 {lang === 'km' ? 'ម៉ូឌុលគ្រប់គ្រង' : 'Modules'}
@@ -203,8 +203,8 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
             </button>
           </div>
 
-          {/* Navigation Items */}
-          <div className="p-2 space-y-1 overflow-y-auto max-h-[calc(100vh-140px)]">
+          {/* Navigation Items (Smooth Independent Scroll) */}
+          <div className="p-2 space-y-1 overflow-y-auto flex-1 min-h-0 overscroll-contain">
             {navItems.map((item) => {
               if (!isAccessible(item.allowed)) return null;
 
@@ -254,27 +254,29 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
           </div>
         </div>
 
-        {/* RBAC notice footer */}
-        {isCollapsed ? (
-          <div
-            className="p-3 flex justify-center border-t border-slate-100 dark:border-slate-800"
-            title={`RBAC Active: ${t.roles[currentRole]}`}
-          >
-            <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-          </div>
-        ) : (
-          <div className="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 m-2.5 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-xs">
-            <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold mb-0.5">
-              <Shield className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-              <span>RBAC Active</span>
+        {/* RBAC notice footer (Pinned at bottom) */}
+        <div className="shrink-0">
+          {isCollapsed ? (
+            <div
+              className="p-3 flex justify-center border-t border-slate-100 dark:border-slate-800"
+              title={`RBAC Active: ${t.roles[currentRole]}`}
+            >
+              <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-              {lang === 'km'
-                ? `តួនាទី: ${t.roles[currentRole]}`
-                : `Logged in as ${t.roles[currentRole]}`}
-            </p>
-          </div>
-        )}
+          ) : (
+            <div className="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 m-2.5 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-xs">
+              <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold mb-0.5">
+                <Shield className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                <span>RBAC Active</span>
+              </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                {lang === 'km'
+                  ? `តួនាទី: ${t.roles[currentRole]}`
+                  : `Logged in as ${t.roles[currentRole]}`}
+              </p>
+            </div>
+          )}
+        </div>
       </aside>
 
       {/* Mobile Slide-over Drawer Menu (< md) */}
@@ -288,9 +290,9 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
 
           {/* Drawer Panel */}
           <div className="fixed inset-y-0 left-0 w-[290px] max-w-[85vw] bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between z-50 animate-in slide-in-from-left duration-250">
-            <div>
+            <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
               {/* Drawer Header */}
-              <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
                 <div className="flex items-center gap-2.5">
                   <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white flex items-center justify-center font-black text-xs shadow-md shadow-blue-500/20">
                     ERP
@@ -313,8 +315,8 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
                 </button>
               </div>
 
-              {/* Navigation Items in Drawer */}
-              <div className="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-140px)]">
+              {/* Navigation Items in Drawer (Smooth Scroll) */}
+              <div className="p-3 space-y-1 overflow-y-auto flex-1 min-h-0 overscroll-contain">
                 {navItems.map((item) => {
                   if (!isAccessible(item.allowed)) return null;
 
@@ -355,9 +357,9 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
             </div>
 
             {/* Drawer RBAC Footer */}
-            <div className="p-3 m-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-xs">
+            <div className="shrink-0 p-3 m-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-xs">
               <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold mb-0.5">
-                <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <Shield className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                 <span>RBAC Active</span>
               </div>
               <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
