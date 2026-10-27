@@ -28,6 +28,10 @@ import {
   Gift,
   Percent,
   Coins,
+  HelpCircle,
+  BookOpen,
+  Info,
+  ShieldCheck,
 } from 'lucide-react';
 import CustomerDebtBadge from '@/components/CustomerDebtBadge';
 import KhqrModal from '@/components/KhqrModal';
@@ -66,6 +70,7 @@ export default function PosView() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showKhqrModal, setShowKhqrModal] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
+  const [showGuideModal, setShowGuideModal] = useState(false);
   const [receiptData, setReceiptData] = useState<any>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -201,6 +206,35 @@ export default function PosView() {
 
   return (
     <div className="p-3 sm:p-4 md:p-5 bg-slate-50 dark:bg-slate-900 min-h-[calc(100vh-4rem)] pb-24 md:pb-6">
+      {/* POS Top Header & User Guide Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-800 rounded-2xl p-3 sm:p-3.5 border border-slate-200 dark:border-slate-700 shadow-sm mb-3">
+        <div className="flex items-center gap-2.5">
+          <div className="h-9 w-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
+            <ShoppingCart className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="font-black text-slate-900 dark:text-white text-sm sm:text-base flex items-center gap-2">
+              <span>{lang === 'km' ? 'ប្រព័ន្ធលក់ទំនិញរហ័ស (POS)' : 'Point of Sale (POS)'}</span>
+              <span className="text-[10px] bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
+                Active
+              </span>
+            </h1>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              {lang === 'km' ? 'ចេញវិក្កយបត្រ, ស្កេន KHQR, កាត់ស្តុក & គ្រប់គ្រងប្រាក់កក់' : 'Instant billing, KHQR payment, stock auto-deduct & deposits'}
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setShowGuideModal(true)}
+          className="flex items-center gap-1.5 self-start sm:self-auto px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/60 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 text-xs font-bold transition-all shadow-sm active:scale-95"
+        >
+          <HelpCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+          <span>{lang === 'km' ? '📖 របៀបប្រើប្រាស់ & មុខងារ' : '📖 How to Use & Features'}</span>
+        </button>
+      </div>
+
       {/* Mobile Segment Switcher (< md) */}
       <div className="md:hidden flex items-center bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl shadow-inner mb-3">
         <button
@@ -971,6 +1005,167 @@ export default function PosView() {
                 className="rounded-xl border border-slate-300 px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
               >
                 {t.common.cancel}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* MODAL 3: POS Comprehensive User Guide & Features Explanation */}
+      {showGuideModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
+          <div className="w-full max-w-2xl rounded-2xl bg-white dark:bg-slate-800 p-4 sm:p-6 shadow-2xl relative max-h-[90vh] flex flex-col border border-slate-200 dark:border-slate-700">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 dark:border-slate-700 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="h-9 w-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
+                  <BookOpen className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-black text-slate-900 dark:text-white text-sm sm:text-base">
+                    {lang === 'km' ? 'សៀវភៅណែនាំរបៀបប្រើប្រាស់ & មុខងារ POS' : 'POS User Guide & Feature Breakdown'}
+                  </h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    {lang === 'km' ? 'ការពន្យល់លម្អិតពីមុខងារនីមួយៗក្នុងប្រព័ន្ធលក់ទំនិញរហ័ស' : 'Complete instructions for cashiers and sales operators'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowGuideModal(false)}
+                className="rounded-lg p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Modal Scrollable Body */}
+            <div className="flex-1 overflow-y-auto space-y-3.5 py-4 pr-1 scroll-smooth">
+              {/* Feature 1: Quick 4-Step Sales Flow */}
+              <div className="bg-slate-50 dark:bg-slate-700/40 rounded-xl p-3 sm:p-3.5 border border-slate-200/80 dark:border-slate-700">
+                <h4 className="font-bold text-xs sm:text-sm text-blue-600 dark:text-blue-400 flex items-center gap-2 mb-2">
+                  <span className="h-5 w-5 rounded-full bg-blue-600 text-white text-[10px] flex items-center justify-center font-black">1</span>
+                  <span>{lang === 'km' ? 'ជំហានលក់ទំនិញរហ័ស (៤ ជំហាន)' : 'Quick 4-Step Sales Flow'}</span>
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 dark:text-slate-300">
+                  <div className="bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700">
+                    <span className="font-bold text-slate-900 dark:text-white block mb-0.5">ជំហានទី ១: ជ្រើសរើសអតិថិជន</span>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">ជ្រើសរើសអតិថិជនពីបញ្ជីដើម្បីទទួលបានតម្លៃពិសេស ឬទុកចោលជាអតិថិជនទូទៅ។</p>
+                  </div>
+                  <div className="bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700">
+                    <span className="font-bold text-slate-900 dark:text-white block mb-0.5">ជំហានទី ២: ជ្រើសរើសទំនិញ</span>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">ចុចលើផលិតផលក្នុង Catalog ឬស្វែងរកតាមឈ្មោះដើម្បីបញ្ចូលក្នុងកន្ត្រក។</p>
+                  </div>
+                  <div className="bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700">
+                    <span className="font-bold text-slate-900 dark:text-white block mb-0.5">ជំហានទី ៣: បញ្ចុះតម្លៃ & ប្រាក់កក់</span>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">កំណត់ប្រាក់កក់ធុងទឹក ២០L ថ្មី និងជ្រើសរើសការបញ្ចុះតម្លៃ (% / ៛ / ឥតគិតថ្លៃ)។</p>
+                  </div>
+                  <div className="bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700">
+                    <span className="font-bold text-slate-900 dark:text-white block mb-0.5">ជំហានទី ៤: ទូទាត់ & បោះពុម្ព</span>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">ជ្រើសរើសវិធីសាស្ត្រទូទាត់ (លុយសុទ្ធ, KHQR, ជំពាក់) រួចចុច "✓ គិតប្រាក់"។</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Feature 2: Customer Price Tier System */}
+              <div className="bg-slate-50 dark:bg-slate-700/40 rounded-xl p-3 sm:p-3.5 border border-slate-200/80 dark:border-slate-700">
+                <h4 className="font-bold text-xs sm:text-sm text-purple-600 dark:text-purple-400 flex items-center gap-2 mb-2">
+                  <span className="h-5 w-5 rounded-full bg-purple-600 text-white text-[10px] flex items-center justify-center font-black">2</span>
+                  <span>{lang === 'km' ? 'ប្រព័ន្ធបែងចែកកម្រិតតម្លៃអតិថិជន (Price Tiers)' : 'Customer Price Tiers'}</span>
+                </h4>
+                <p className="text-xs text-slate-600 dark:text-slate-300 mb-2">
+                  ប្រព័ន្ធនឹងកំណត់តម្លៃទំនិញស្វ័យប្រវត្តិតាមកម្រិតរបស់អតិថិជននីមួយៗ៖
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                  <div className="bg-white dark:bg-slate-800 p-2 rounded-lg border border-purple-100 dark:border-purple-900/50">
+                    <span className="font-bold text-purple-600 dark:text-purple-400 block mb-0.5">DISTRIBUTOR</span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">តម្លៃពិសេសទាបបំផុតសម្រាប់តំណាងចែកចាយប្រចាំតំបន់។</span>
+                  </div>
+                  <div className="bg-white dark:bg-slate-800 p-2 rounded-lg border border-blue-100 dark:border-blue-900/50">
+                    <span className="font-bold text-blue-600 dark:text-blue-400 block mb-0.5">WHOLESALE</span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">តម្លៃបោះដុំសម្រាប់ម៉ាត, ភោជនីយដ្ឋាន និងដេប៉ូ។</span>
+                  </div>
+                  <div className="bg-white dark:bg-slate-800 p-2 rounded-lg border border-emerald-100 dark:border-emerald-900/50">
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400 block mb-0.5">RETAIL</span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">តម្លៃលក់រាយស្ដង់ដារសម្រាប់អតិថិជនទូទៅ។</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Feature 3: New 20L Bottle Deposit Modifier */}
+              <div className="bg-slate-50 dark:bg-slate-700/40 rounded-xl p-3 sm:p-3.5 border border-slate-200/80 dark:border-slate-700">
+                <h4 className="font-bold text-xs sm:text-sm text-cyan-600 dark:text-cyan-400 flex items-center gap-2 mb-2">
+                  <span className="h-5 w-5 rounded-full bg-cyan-600 text-white text-[10px] flex items-center justify-center font-black">3</span>
+                  <span>{lang === 'km' ? 'ប្រាក់កក់ធុងទឹក ២០L ថ្មី (12,000 ៛/ធុង)' : '20L Bottle Cash Deposit (12,000 KHR)'}</span>
+                </h4>
+                <p className="text-xs text-slate-600 dark:text-slate-300">
+                  ប្រើប្រាស់នៅពេលដែលអតិថិជនជាវទឹកបរិសុទ្ធធុង ២០L ថ្មីដោយគ្មានសំបកធុងមកដោះដូរ។ ប្រព័ន្ធនឹងបន្ថែមប្រាក់កក់ ១២,០០០ ៛ ក្នុងមួយធុងចូលក្នុងវិក្កយបត្រ និងកត់ត្រាចំនួនធុងចូលក្នុងបញ្ជីចរាចរណ៍សំបកធុង (Bottle Ledger) របស់រោងចក្រដោយស្វ័យប្រវត្តិ។
+                </p>
+              </div>
+
+              {/* Feature 4: Multi-mode Discounts */}
+              <div className="bg-slate-50 dark:bg-slate-700/40 rounded-xl p-3 sm:p-3.5 border border-slate-200/80 dark:border-slate-700">
+                <h4 className="font-bold text-xs sm:text-sm text-emerald-600 dark:text-emerald-400 flex items-center gap-2 mb-2">
+                  <span className="h-5 w-5 rounded-full bg-emerald-600 text-white text-[10px] flex items-center justify-center font-black">4</span>
+                  <span>{lang === 'km' ? 'ជម្រើសបញ្ចុះតម្លៃ ៣ បែប (Multi-mode Discount)' : '3 Discount Modes'}</span>
+                </h4>
+                <div className="space-y-1.5 text-xs text-slate-700 dark:text-slate-300">
+                  <div className="flex items-start gap-2 bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
+                    <span className="font-black text-blue-600 dark:text-blue-400 shrink-0">១. ភាគរយ (%) :</span>
+                    <span>ចុចប៊ូតុង 5%, 10%, 15%, 20% ឬវាយបញ្ចូល % ដោយផ្ទាល់។</span>
+                  </div>
+                  <div className="flex items-start gap-2 bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
+                    <span className="font-black text-blue-600 dark:text-blue-400 shrink-0">២. លុយរៀល (៛) :</span>
+                    <span>ចុចជ្រើសរើស 500៛, 1000៛, 2000៛, 5000៛ ឬវាយបញ្ចូលចំនួនសាច់ប្រាក់រៀលដែលត្រូវកាត់បន្ថយ។</span>
+                  </div>
+                  <div className="flex items-start gap-2 bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
+                    <span className="font-black text-emerald-600 dark:text-emerald-400 shrink-0">៣. ឥតគិតថ្លៃ (100% Free) :</span>
+                    <span>បញ្ចុះតម្លៃ ១០០% លើថ្លៃទឹក/ទំនិញសរុប សម្រាប់កម្មវិធីឧបត្ថម្ភ បរិច្ចាគ ឬថែមជូនពិសេស។</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Feature 5: 3 Payment Methods & Bakong KHQR */}
+              <div className="bg-slate-50 dark:bg-slate-700/40 rounded-xl p-3 sm:p-3.5 border border-slate-200/80 dark:border-slate-700">
+                <h4 className="font-bold text-xs sm:text-sm text-amber-600 dark:text-amber-400 flex items-center gap-2 mb-2">
+                  <span className="h-5 w-5 rounded-full bg-amber-600 text-white text-[10px] flex items-center justify-center font-black">5</span>
+                  <span>{lang === 'km' ? 'វិធីសាស្ត្រទូទាត់ប្រាក់ ៣ បែប' : '3 Payment Methods'}</span>
+                </h4>
+                <div className="space-y-1.5 text-xs text-slate-700 dark:text-slate-300">
+                  <div className="flex items-start gap-2 bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
+                    <span className="font-black text-emerald-600 dark:text-emerald-400 shrink-0">💵 សាច់ប្រាក់ (Cash) :</span>
+                    <span>ទទួលប្រាក់សុទ្ធពីអតិថិជន និងកត់ត្រាការលក់ភ្លាមៗ។</span>
+                  </div>
+                  <div className="flex items-start gap-2 bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
+                    <span className="font-black text-red-600 dark:text-red-400 shrink-0">📱 ស្កេន KHQR (Bakong) :</span>
+                    <span>បង្កើត QR Code ស្តង់ដារបាគងភ្លាមៗ អតិថិជនអាចស្កេនពីគ្រប់ធនាគារ (ABA, Acleda, Canadia, Wing, etc.) ជាមួយការផ្ទៀងផ្ទាត់ស្វ័យប្រវត្តិ។</span>
+                  </div>
+                  <div className="flex items-start gap-2 bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
+                    <span className="font-black text-amber-600 dark:text-amber-400 shrink-0">💳 ជំពាក់ / ឥណទាន (Credit) :</span>
+                    <span>កត់ត្រាបំណុលចូលសមតុល្យរបស់អតិថិជន។ ប្រព័ន្ធនឹងផ្ទៀងផ្ទាត់មិនឱ្យជំពាក់លើសកំណត់ឥណទាន (Credit Limit) ឡើយ។</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Feature 6: Stock Auto-Deduct & Thermal Receipt Printing */}
+              <div className="bg-slate-50 dark:bg-slate-700/40 rounded-xl p-3 sm:p-3.5 border border-slate-200/80 dark:border-slate-700">
+                <h4 className="font-bold text-xs sm:text-sm text-blue-600 dark:text-blue-400 flex items-center gap-2 mb-2">
+                  <span className="h-5 w-5 rounded-full bg-blue-600 text-white text-[10px] flex items-center justify-center font-black">6</span>
+                  <span>{lang === 'km' ? 'ការកាត់ស្តុក & បោះពុម្ពវិក្កយបត្រ' : 'Stock Deduction & Receipt Printing'}</span>
+                </h4>
+                <p className="text-xs text-slate-600 dark:text-slate-300">
+                  ក្រោយពេលចុច "✓ គិតប្រាក់" ប្រព័ន្ធនឹងកាត់ស្តុកទំនិញចេញពីឃ្លាំងដោយស្វ័យប្រវត្តិ និងបង្ហាញផ្ទាំងវិក្កយបត្រស្ដង់ដារកម្ដៅ (ESC/POS 80mm Receipt) ដែលអាចចុចបោះពុម្ពភ្លាមៗ ឬរក្សាទុកជា PDF។
+                </p>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-end shrink-0">
+              <button
+                type="button"
+                onClick={() => setShowGuideModal(false)}
+                className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all active:scale-95"
+              >
+                {lang === 'km' ? 'យល់ព្រម (បិទ)' : 'Got it (Close)'}
               </button>
             </div>
           </div>
