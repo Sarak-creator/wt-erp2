@@ -15,11 +15,15 @@ import {
   Phone,
   Shield,
   RefreshCw,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 export default function SettingsView() {
   const {
     lang,
+    theme,
+    setTheme,
     companySettings,
     updateCompanySettings,
     deliveryZones,
@@ -217,6 +221,69 @@ export default function SettingsView() {
                 = {Math.round(Number(bottleDepositRate) * Number(khmerRate)).toLocaleString()} ៛ / {lang === 'km' ? 'ដប' : 'bottle'}
               </span>
             </div>
+          </div>
+        </div>
+
+        {/* Theme Appearance Settings */}
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-bold text-slate-900 text-base flex items-center gap-2">
+                {theme === 'dark' ? <Moon className="w-5 h-5 text-indigo-400" /> : <Sun className="w-5 h-5 text-amber-500" />}
+                {lang === 'km' ? 'ផ្ទាំងបង្ហាញរូបរាង (Interface Theme)' : 'Display Theme & Interface'}
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                {lang === 'km'
+                  ? 'ជ្រើសរើសទម្រង់ពន្លឺ (Light Mode) ឬទម្រង់ងងឹត (Dark Mode) សម្រាប់កាត់បន្ថយការចាំងភ្នែកពេលយប់'
+                  : 'Choose between Light Mode and Dark Mode for optimal comfort day and night'}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+            <button
+              type="button"
+              onClick={() => setTheme('light')}
+              className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left ${
+                theme === 'light'
+                  ? 'border-blue-600 bg-blue-50/50 shadow-sm'
+                  : 'border-slate-200 hover:border-slate-300 bg-white'
+              }`}
+            >
+              <div className="p-2.5 rounded-lg bg-amber-100 text-amber-600">
+                <Sun className="w-5 h-5 fill-amber-400" />
+              </div>
+              <div>
+                <span className="font-bold text-slate-900 text-sm block">
+                  {lang === 'km' ? 'ពន្លឺថ្ងៃ (Light Mode)' : 'Light Mode'}
+                </span>
+                <span className="text-xs text-slate-500">
+                  {lang === 'km' ? 'ពណ៌សភ្លឺច្បាស់ ងាយស្រួលមើលពេលថ្ងៃ' : 'Clean white interface for bright spaces'}
+                </span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setTheme('dark')}
+              className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left ${
+                theme === 'dark'
+                  ? 'border-blue-500 bg-slate-800 shadow-sm'
+                  : 'border-slate-200 hover:border-slate-300 bg-white'
+              }`}
+            >
+              <div className="p-2.5 rounded-lg bg-indigo-950 text-indigo-400">
+                <Moon className="w-5 h-5 fill-indigo-400" />
+              </div>
+              <div>
+                <span className="font-bold text-slate-900 text-sm block">
+                  {lang === 'km' ? 'ងងឹត (Dark Mode)' : 'Dark Mode'}
+                </span>
+                <span className="text-xs text-slate-500">
+                  {lang === 'km' ? 'ពណ៌ខ្មៅរលោង ស្រាលភ្នែក ស្អាតទាន់សម័យ' : 'Sleek dark aesthetics, reduces eye strain'}
+                </span>
+              </div>
+            </button>
           </div>
         </div>
 

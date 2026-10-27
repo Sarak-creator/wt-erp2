@@ -34,9 +34,12 @@ const defaultCompanySettings: CompanySettings = {
 };
 
 interface AppState {
-  // Locale & RBAC
+  // Locale, Theme & RBAC
   lang: Language;
   setLang: (lang: Language) => void;
+  theme: 'light' | 'dark';
+  setTheme: (theme: 'light' | 'dark') => void;
+  toggleTheme: () => void;
   currentRole: UserRole;
   setCurrentRole: (role: UserRole) => void;
 
@@ -127,9 +130,26 @@ interface AppState {
 }
 
 export const useAppStore = create<AppState>()((set, get) => ({
-  // Locale & Role
+  // Locale, Theme & Role
   lang: 'km',
   setLang: (lang) => set({ lang }),
+  theme: 'light',
+  setTheme: (theme) => {
+    set({ theme });
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('theme_preference', theme);
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  },
+  toggleTheme: () => {
+    const current = get().theme;
+    const next = current === 'dark' ? 'light' : 'dark';
+    get().setTheme(next);
+  },
   currentRole: 'admin',
   setCurrentRole: (currentRole) => set({ currentRole }),
 

@@ -25,8 +25,20 @@ import ManufacturingView from '@/components/ManufacturingView';
 import { useAppStore } from '@/lib/store';
 
 export default function Home() {
-  const { currentRole, fetchFromSupabase } = useAppStore();
+  const { currentRole, fetchFromSupabase, setTheme } = useAppStore();
   const [currentTab, setCurrentTab] = useState<string>('products');
+
+  // Initialize theme from storage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('theme_preference') as 'light' | 'dark' | null;
+      if (saved) {
+        setTheme(saved);
+      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        setTheme('dark');
+      }
+    }
+  }, [setTheme]);
 
   // Fetch live data directly from Supabase on mount
   useEffect(() => {

@@ -15,12 +15,16 @@ import {
   X,
   KeyRound,
   ExternalLink,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 export default function Header() {
   const {
     lang,
     setLang,
+    theme,
+    toggleTheme,
     currentRole,
     setCurrentRole,
     supabaseConnected,
@@ -130,6 +134,33 @@ export default function Header() {
         >
           <Languages className="h-3.5 w-3.5 text-slate-500" />
           <span>{lang === 'km' ? 'English' : 'ភាសាខ្មែរ'}</span>
+        </button>
+
+        {/* Theme Toggle (Dark / Light Mode) */}
+        <button
+          onClick={toggleTheme}
+          className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
+          title={
+            lang === 'km'
+              ? theme === 'dark'
+                ? 'ប្ដូរទៅពន្លឺ (Light Mode)'
+                : 'ប្ដូរទៅងងឹត (Dark Mode)'
+              : theme === 'dark'
+              ? 'Switch to Light Mode'
+              : 'Switch to Dark Mode'
+          }
+        >
+          {theme === 'dark' ? (
+            <>
+              <Sun className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
+              <span className="hidden sm:inline">{lang === 'km' ? 'ពន្លឺ' : 'Light'}</span>
+            </>
+          ) : (
+            <>
+              <Moon className="h-3.5 w-3.5 text-slate-600 fill-slate-200" />
+              <span className="hidden sm:inline">{lang === 'km' ? 'ងងឹត' : 'Dark'}</span>
+            </>
+          )}
         </button>
 
         {/* User Avatar */}
