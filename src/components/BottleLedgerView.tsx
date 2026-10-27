@@ -363,7 +363,7 @@ export default function BottleLedgerView() {
                     badgeColor: 'bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300',
                   }))}
                   className="w-full"
-                  buttonClassName="w-full py-2.5 px-3 text-xs"
+                  buttonClassName="w-full py-2 px-3 text-xs"
                 />
               </div>
 

@@ -196,7 +196,7 @@ export default function PosView() {
                       : 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300',
                 }))}
                 className="w-full"
-                buttonClassName="py-2.5 px-3.5"
+                buttonClassName="h-[40px] px-3"
               />
             </div>
 
