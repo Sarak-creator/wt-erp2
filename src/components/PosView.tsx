@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAppStore } from '@/lib/store';
 import { translations } from '@/lib/i18n';
 import { formatKHR } from '@/lib/utils';
@@ -25,6 +25,9 @@ import {
   Droplets,
   ArrowLeft,
   Tag,
+  Gift,
+  Percent,
+  Coins,
 } from 'lucide-react';
 import CustomerDebtBadge from '@/components/CustomerDebtBadge';
 import KhqrModal from '@/components/KhqrModal';
@@ -55,8 +58,11 @@ export default function PosView() {
 
   const [posMobileTab, setPosMobileTab] = useState<'catalog' | 'cart'>('catalog');
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'pure_water' | 'asset'>('all');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
+  type DiscountType = 'percent' | 'amount' | 'free';
+  const [discountType, setDiscountType] = useState<DiscountType>('percent');
   const [discountPercent, setDiscountPercent] = useState<number>(0);
+  const [discountAmountInput, setDiscountAmountInput] = useState<number>(0);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
   const [searchTerm, setSearchTerm] = useState('');
   const [showKhqrModal, setShowKhqrModal] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
@@ -65,10 +71,20 @@ export default function PosView() {
 
   // Calculations
   const subtotal = cart.reduce((acc, ci) => acc + ci.lineTotal, 0);
-  const discountAmount = (subtotal * discountPercent) / 100;
+  const discountAmount = useMemo(() => {
+    if (discountType === 'free') {
+      return subtotal;
+    }
+    if (discountType === 'amount') {
+      return Math.min(subtotal, Math.max(0, discountAmountInput || 0));
+    }
+    const validPct = Math.min(100, Math.max(0, discountPercent || 0));
+    return Math.round((subtotal * validPct) / 100);
+  }, [discountType, subtotal, discountAmountInput, discountPercent]);
+
   const depositRate = 12000; // 12,000 KHR per returnable 20L bottle
   const totalDeposit = depositBottlesCount * depositRate;
-  const grandTotal = subtotal - discountAmount + totalDeposit;
+  const grandTotal = Math.max(0, subtotal - discountAmount + totalDeposit);
 
   // Credit limit evaluation
   const remainingCredit = selectedCustomer
@@ -177,6 +193,9 @@ export default function PosView() {
     });
 
     clearCart();
+    setDiscountPercent(0);
+    setDiscountAmountInput(0);
+    setDiscountType('percent');
     setShowReceiptModal(true);
   };
 
@@ -215,7 +234,7 @@ export default function PosView() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-5 items-start">
         {/* LEFT COLUMN: Product Catalog (7 cols on md, 8 on xl) */}
         <div
           className={`md:col-span-7 xl:col-span-8 flex flex-col space-y-3 sm:space-y-4 ${
@@ -433,9 +452,9 @@ export default function PosView() {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: POS Cart & Checkout Terminal (5 cols on md, 4 on xl, sticky) */}
+        {/* RIGHT COLUMN: POS Cart & Checkout Terminal (5 cols on md, 4 on xl, sticky top-2 aligned flush with Catalog) */}
         <div
-          className={`md:col-span-5 xl:col-span-4 flex flex-col bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-3.5 sm:p-4 md:p-5 justify-between md:sticky md:top-20 md:max-h-[calc(100vh-6rem)] md:overflow-y-auto ${
+          className={`md:col-span-5 xl:col-span-4 flex flex-col bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-3.5 sm:p-4 md:sticky md:top-2 md:max-h-[calc(100vh-1rem)] md:overflow-y-auto space-y-3 ${
             posMobileTab === 'cart' ? 'flex' : 'hidden md:flex'
           }`}
         >
@@ -463,7 +482,12 @@ export default function PosView() {
               {cart.length > 0 && (
                 <button
                   type="button"
-                  onClick={clearCart}
+                  onClick={() => {
+                    clearCart();
+                    setDiscountPercent(0);
+                    setDiscountAmountInput(0);
+                    setDiscountType('percent');
+                  }}
                   className="text-xs text-rose-500 hover:text-rose-700 font-medium flex items-center gap-1"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -535,34 +559,160 @@ export default function PosView() {
 
           {/* Cart Bottom Summary & Checkout */}
           <div className="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-3">
-            {/* Quick Discount Selector */}
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-                  {lang === 'km' ? 'បញ្ចុះតម្លៃ (%)' : 'Discount (%)'}
-                </span>
-                {discountPercent > 0 && (
-                  <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+            {/* Multi-mode Discount Selector: Percent (%) | Cash Riel (៛) | 100% Free (ឥតគិតថ្លៃ) */}
+            <div className="bg-slate-50 dark:bg-slate-700/30 rounded-xl p-2.5 border border-slate-200/80 dark:border-slate-700 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-700 dark:text-slate-200">
+                  <Tag className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                  <span>{lang === 'km' ? 'បញ្ចុះតម្លៃ (Discount)' : 'Discount'}</span>
+                </div>
+                {discountAmount > 0 && (
+                  <span className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
                     -{formatKHR(discountAmount)}
                   </span>
                 )}
               </div>
-              <div className="grid grid-cols-5 gap-1.5 text-xs">
-                {[0, 5, 10, 15, 20].map((pct) => (
-                  <button
-                    key={pct}
-                    type="button"
-                    onClick={() => setDiscountPercent(pct)}
-                    className={`py-1 rounded-lg font-bold text-[11px] transition-all ${
-                      discountPercent === pct
-                        ? 'bg-blue-600 text-white shadow-sm'
-                        : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
-                    }`}
-                  >
-                    {pct === 0 ? (lang === 'km' ? 'គ្មាន' : '0%') : `${pct}%`}
-                  </button>
-                ))}
+
+              {/* 3-Mode Tab Switcher */}
+              <div className="grid grid-cols-3 gap-1 bg-slate-200/70 dark:bg-slate-800 p-0.5 rounded-lg text-xs font-semibold">
+                <button
+                  type="button"
+                  onClick={() => setDiscountType('percent')}
+                  className={`flex items-center justify-center gap-1 py-1 px-1 rounded-md transition-all text-[11px] ${
+                    discountType === 'percent'
+                      ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm font-bold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  }`}
+                >
+                  <Percent className="h-3 w-3" />
+                  <span>{lang === 'km' ? 'ភាគរយ (%)' : 'Percent'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDiscountType('amount')}
+                  className={`flex items-center justify-center gap-1 py-1 px-1 rounded-md transition-all text-[11px] ${
+                    discountType === 'amount'
+                      ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm font-bold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                  }`}
+                >
+                  <Coins className="h-3 w-3" />
+                  <span>{lang === 'km' ? 'លុយរៀល (៛)' : 'KHR (៛)'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDiscountType('free')}
+                  className={`flex items-center justify-center gap-1 py-1 px-1 rounded-md transition-all text-[11px] ${
+                    discountType === 'free'
+                      ? 'bg-emerald-600 text-white shadow-sm font-bold'
+                      : 'text-emerald-700 dark:text-emerald-400 hover:text-emerald-800'
+                  }`}
+                >
+                  <Gift className="h-3 w-3" />
+                  <span>{lang === 'km' ? 'ឥតគិតថ្លៃ' : 'Free'}</span>
+                </button>
               </div>
+
+              {/* MODE 1: Percent Discount */}
+              {discountType === 'percent' && (
+                <div className="space-y-1.5 pt-0.5">
+                  <div className="grid grid-cols-5 gap-1 text-xs">
+                    {[0, 5, 10, 15, 20].map((pct) => (
+                      <button
+                        key={pct}
+                        type="button"
+                        onClick={() => setDiscountPercent(pct)}
+                        className={`py-1 rounded-md font-bold text-[11px] transition-all ${
+                          discountPercent === pct
+                            ? 'bg-blue-600 text-white shadow-sm'
+                            : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600 hover:bg-slate-100'
+                        }`}
+                      >
+                        {pct === 0 ? (lang === 'km' ? 'គ្មាន' : '0%') : `${pct}%`}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-1.5 pt-0.5">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 shrink-0">
+                      {lang === 'km' ? 'ឬកំណត់ % ផ្ទាល់:' : 'Or custom %:'}
+                    </span>
+                    <div className="relative flex-1">
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={discountPercent || ''}
+                        onChange={(e) => setDiscountPercent(Math.min(100, Math.max(0, Number(e.target.value))))}
+                        placeholder="0"
+                        className="w-full h-7 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-2 pr-6 text-xs text-slate-800 dark:text-slate-100 font-bold focus:border-blue-500 focus:outline-none"
+                      />
+                      <span className="absolute right-2 top-1.5 text-xs text-slate-400 font-bold">%</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* MODE 2: Cash Amount Discount (KHR) */}
+              {discountType === 'amount' && (
+                <div className="space-y-1.5 pt-0.5">
+                  <div className="grid grid-cols-5 gap-1 text-xs">
+                    {[
+                      { label: lang === 'km' ? 'គ្មាន' : '0៛', val: 0 },
+                      { label: '500៛', val: 500 },
+                      { label: '1,000៛', val: 1000 },
+                      { label: '2,000៛', val: 2000 },
+                      { label: '5,000៛', val: 5000 },
+                    ].map((item) => (
+                      <button
+                        key={item.val}
+                        type="button"
+                        onClick={() => setDiscountAmountInput(item.val)}
+                        className={`py-1 px-0.5 rounded-md font-bold text-[10px] truncate transition-all ${
+                          discountAmountInput === item.val
+                            ? 'bg-blue-600 text-white shadow-sm'
+                            : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600 hover:bg-slate-100'
+                        }`}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-1.5 pt-0.5">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 shrink-0">
+                      {lang === 'km' ? 'ឬបញ្ចូលចំនួនទឹកប្រាក់:' : 'Or custom amount:'}
+                    </span>
+                    <div className="relative flex-1">
+                      <input
+                        type="number"
+                        min="0"
+                        step="500"
+                        value={discountAmountInput || ''}
+                        onChange={(e) => setDiscountAmountInput(Math.max(0, Number(e.target.value)))}
+                        placeholder="0"
+                        className="w-full h-7 rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-2 pr-6 text-xs text-slate-800 dark:text-slate-100 font-bold focus:border-blue-500 focus:outline-none"
+                      />
+                      <span className="absolute right-2 top-1.5 text-xs text-slate-400 font-bold">៛</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* MODE 3: 100% Free / Complimentary */}
+              {discountType === 'free' && (
+                <div className="bg-emerald-100/70 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-700/60 rounded-lg p-2 text-emerald-800 dark:text-emerald-200 text-xs flex items-start gap-2">
+                  <Gift className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-black block text-[11px]">
+                      {lang === 'km' ? '🎁 កម្មវិធីថែមជូន / ឥតគិតថ្លៃ ១០០%' : '🎁 Complimentary / 100% Free'}
+                    </span>
+                    <p className="text-[10px] text-emerald-700 dark:text-emerald-300 mt-0.5">
+                      {lang === 'km'
+                        ? `បញ្ចុះតម្លៃ ១០០% លើថ្លៃទឹក/ទំនិញសរុប (-${formatKHR(subtotal)})`
+                        : `100% discount applied to all cart products (-${formatKHR(subtotal)})`}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Subtotal & Deposit summary */}
@@ -579,10 +729,16 @@ export default function PosView() {
                   <span>+{formatKHR(totalDeposit)}</span>
                 </div>
               )}
-              {discountPercent > 0 && (
+              {discountAmount > 0 && (
                 <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-medium">
-                  <span>{t.pos.discount} ({discountPercent}%):</span>
-                  <span>-{formatKHR(discountAmount)}</span>
+                  <span>
+                    {discountType === 'free'
+                      ? (lang === 'km' ? 'ឥតគិតថ្លៃ (100% Free):' : 'Complimentary (100%):')
+                      : discountType === 'amount'
+                      ? (lang === 'km' ? 'បញ្ចុះតម្លៃជាសាច់ប្រាក់:' : 'Cash Discount:')
+                      : `${t.pos.discount} (${discountPercent}%):`}
+                  </span>
+                  <span className="font-bold">-{formatKHR(discountAmount)}</span>
                 </div>
               )}
               <div className="flex justify-between items-baseline pt-2 border-t border-slate-200 dark:border-slate-700 text-sm sm:text-base font-black text-slate-900 dark:text-white">
