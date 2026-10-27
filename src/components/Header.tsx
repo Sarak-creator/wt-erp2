@@ -18,6 +18,7 @@ import {
   ExternalLink,
   Sun,
   Moon,
+  Menu,
 } from 'lucide-react';
 
 export default function Header() {
@@ -33,6 +34,7 @@ export default function Header() {
     syncError,
     fetchFromSupabase,
     customers,
+    toggleMobileMenu,
   } = useAppStore();
 
   const t = translations[lang];
@@ -71,6 +73,16 @@ export default function Header() {
     <header className="sticky top-0 z-30 flex h-14 sm:h-16 w-full items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 px-2.5 sm:px-4 md:px-6 backdrop-blur-md">
       {/* Brand & Factory Identity */}
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+        {/* Mobile Hamburger Menu Toggle */}
+        <button
+          type="button"
+          onClick={toggleMobileMenu}
+          className="md:hidden p-1.5 -ml-1 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          title={lang === 'km' ? 'បើកម៉ឺនុយ' : 'Open Menu'}
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+
         <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-lg sm:rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-md shadow-blue-500/20 text-white">
           <Droplet className="h-4 w-4 sm:h-6 sm:w-6 fill-current" />
         </div>

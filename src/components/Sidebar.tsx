@@ -19,6 +19,7 @@ import {
   Settings,
   PanelLeftClose,
   PanelLeftOpen,
+  X,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -27,8 +28,19 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
-  const { lang, currentRole, orders, inventory, customers, employees, purchases, customerDebts, expenses } =
-    useAppStore();
+  const {
+    lang,
+    currentRole,
+    orders,
+    inventory,
+    customers,
+    employees,
+    purchases,
+    customerDebts,
+    expenses,
+    isMobileMenuOpen,
+    setIsMobileMenuOpen,
+  } = useAppStore();
   const t = translations[lang];
 
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -152,115 +164,211 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
   ];
 
   return (
-    <aside
-      className={`${
-        isCollapsed ? 'w-16 md:w-[72px]' : 'w-64'
-      } border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col justify-between shrink-0 hidden md:flex transition-all duration-300 ease-in-out`}
-    >
-      <div>
-        {/* Sidebar Header & Collapse Toggle */}
-        <div className="flex items-center justify-between p-3 border-b border-slate-100 dark:border-slate-800">
-          {!isCollapsed ? (
-            <div className="px-1 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 truncate">
-              {lang === 'km' ? 'ម៉ូឌុលគ្រប់គ្រង' : 'Modules'}
-            </div>
-          ) : (
-            <span className="w-1" />
-          )}
-          <button
-            type="button"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors mx-auto"
-            title={
-              isCollapsed
-                ? lang === 'km'
-                  ? 'ពង្រីក Sidebar'
-                  : 'Expand Sidebar'
-                : lang === 'km'
-                ? 'បង្រួម Sidebar'
-                : 'Collapse Sidebar'
-            }
-          >
-            {isCollapsed ? (
-              <PanelLeftOpen className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+    <>
+      {/* Desktop / Tablet Sidebar */}
+      <aside
+        className={`${
+          isCollapsed ? 'w-16 md:w-[72px]' : 'w-64'
+        } border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col justify-between shrink-0 hidden md:flex transition-all duration-300 ease-in-out`}
+      >
+        <div>
+          {/* Sidebar Header & Collapse Toggle */}
+          <div className="flex items-center justify-between p-3 border-b border-slate-100 dark:border-slate-800">
+            {!isCollapsed ? (
+              <div className="px-1 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 truncate">
+                {lang === 'km' ? 'ម៉ូឌុលគ្រប់គ្រង' : 'Modules'}
+              </div>
             ) : (
-              <PanelLeftClose className="h-4 w-4" />
+              <span className="w-1" />
             )}
-          </button>
-        </div>
-
-        {/* Navigation Items */}
-        <div className="p-2 space-y-1 overflow-y-auto max-h-[calc(100vh-140px)]">
-          {navItems.map((item) => {
-            if (!isAccessible(item.allowed)) return null;
-
-            const Icon = item.icon;
-            const isActive = currentTab === item.id;
-
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setCurrentTab(item.id)}
-                title={isCollapsed ? item.label : undefined}
-                className={`w-full flex items-center ${
-                  isCollapsed ? 'justify-center px-2 py-2.5' : 'justify-between px-3 py-2.5'
-                } rounded-xl text-xs font-semibold transition-all group relative ${
-                  isActive
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} min-w-0`}>
-                  <Icon
-                    className={`h-4 w-4 shrink-0 ${
-                      isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200'
-                    }`}
-                  />
-                  {!isCollapsed && <span className="truncate">{item.label}</span>}
-                </div>
-                {!isCollapsed && item.badge && (
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 ${
-                      isActive ? 'bg-white/20 text-white' : item.badgeColor
-                    }`}
-                  >
-                    {item.badge}
-                  </span>
-                )}
-                {/* Floating Tooltip for Collapsed Mode */}
-                {isCollapsed && (
-                  <span className="absolute left-full ml-2 px-2.5 py-1 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-medium rounded-lg shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap">
-                    {item.label}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* RBAC notice footer */}
-      {isCollapsed ? (
-        <div
-          className="p-3 flex justify-center border-t border-slate-100 dark:border-slate-800"
-          title={`RBAC Active: ${t.roles[currentRole]}`}
-        >
-          <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-        </div>
-      ) : (
-        <div className="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 m-2.5 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-xs">
-          <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold mb-0.5">
-            <Shield className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-            <span>RBAC Active</span>
+            <button
+              type="button"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors mx-auto"
+              title={
+                isCollapsed
+                  ? lang === 'km'
+                    ? 'ពង្រីក Sidebar'
+                    : 'Expand Sidebar'
+                  : lang === 'km'
+                  ? 'បង្រួម Sidebar'
+                  : 'Collapse Sidebar'
+              }
+            >
+              {isCollapsed ? (
+                <PanelLeftOpen className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              ) : (
+                <PanelLeftClose className="h-4 w-4" />
+              )}
+            </button>
           </div>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-            {lang === 'km'
-              ? `តួនាទី: ${t.roles[currentRole]}`
-              : `Logged in as ${t.roles[currentRole]}`}
-          </p>
+
+          {/* Navigation Items */}
+          <div className="p-2 space-y-1 overflow-y-auto max-h-[calc(100vh-140px)]">
+            {navItems.map((item) => {
+              if (!isAccessible(item.allowed)) return null;
+
+              const Icon = item.icon;
+              const isActive = currentTab === item.id;
+
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setCurrentTab(item.id)}
+                  title={isCollapsed ? item.label : undefined}
+                  className={`w-full flex items-center ${
+                    isCollapsed ? 'justify-center px-2 py-2.5' : 'justify-between px-3 py-2.5'
+                  } rounded-xl text-xs font-semibold transition-all group relative ${
+                    isActive
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
+                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} min-w-0`}>
+                    <Icon
+                      className={`h-4 w-4 shrink-0 ${
+                        isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200'
+                      }`}
+                    />
+                    {!isCollapsed && <span className="truncate">{item.label}</span>}
+                  </div>
+                  {!isCollapsed && item.badge && (
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 ${
+                        isActive ? 'bg-white/20 text-white' : item.badgeColor
+                      }`}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
+                  {/* Floating Tooltip for Collapsed Mode */}
+                  {isCollapsed && (
+                    <span className="absolute left-full ml-2 px-2.5 py-1 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-medium rounded-lg shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap">
+                      {item.label}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* RBAC notice footer */}
+        {isCollapsed ? (
+          <div
+            className="p-3 flex justify-center border-t border-slate-100 dark:border-slate-800"
+            title={`RBAC Active: ${t.roles[currentRole]}`}
+          >
+            <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+          </div>
+        ) : (
+          <div className="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 m-2.5 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-xs">
+            <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold mb-0.5">
+              <Shield className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+              <span>RBAC Active</span>
+            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+              {lang === 'km'
+                ? `តួនាទី: ${t.roles[currentRole]}`
+                : `Logged in as ${t.roles[currentRole]}`}
+            </p>
+          </div>
+        )}
+      </aside>
+
+      {/* Mobile Slide-over Drawer Menu (< md) */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          {/* Backdrop Overlay */}
+          <div
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+
+          {/* Drawer Panel */}
+          <div className="fixed inset-y-0 left-0 w-[290px] max-w-[85vw] bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between z-50 animate-in slide-in-from-left duration-250">
+            <div>
+              {/* Drawer Header */}
+              <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white flex items-center justify-center font-black text-xs shadow-md shadow-blue-500/20">
+                    ERP
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                      {lang === 'km' ? 'ម៉ឺនុយប្រព័ន្ធ ERP' : 'ERP System Menu'}
+                    </h3>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                      {lang === 'km' ? 'គ្រប់គ្រងម៉ូឌុលទាំងអស់' : 'All Enterprise Modules'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Navigation Items in Drawer */}
+              <div className="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-140px)]">
+                {navItems.map((item) => {
+                  if (!isAccessible(item.allowed)) return null;
+
+                  const Icon = item.icon;
+                  const isActive = currentTab === item.id;
+
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        setCurrentTab(item.id);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                        isActive
+                          ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
+                          : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <Icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                        <span className="truncate">{item.label}</span>
+                      </div>
+                      {item.badge && (
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 ${
+                            isActive ? 'bg-white/20 text-white' : item.badgeColor
+                          }`}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Drawer RBAC Footer */}
+            <div className="p-3 m-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-xs">
+              <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold mb-0.5">
+                <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <span>RBAC Active</span>
+              </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                {lang === 'km'
+                  ? `តួនាទី: ${t.roles[currentRole]}`
+                  : `Role: ${t.roles[currentRole]}`}
+              </p>
+            </div>
+          </div>
         </div>
       )}
-    </aside>
+    </>
   );
 }

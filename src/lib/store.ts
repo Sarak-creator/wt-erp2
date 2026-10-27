@@ -42,6 +42,9 @@ interface AppState {
   toggleTheme: () => void;
   currentRole: UserRole;
   setCurrentRole: (role: UserRole) => void;
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (open: boolean) => void;
+  toggleMobileMenu: () => void;
 
   // Supabase Connection Status
   isSyncing: boolean;
@@ -152,6 +155,9 @@ export const useAppStore = create<AppState>()((set, get) => ({
   },
   currentRole: 'admin',
   setCurrentRole: (currentRole) => set({ currentRole }),
+  isMobileMenuOpen: false,
+  setIsMobileMenuOpen: (isMobileMenuOpen) => set({ isMobileMenuOpen }),
+  toggleMobileMenu: () => set((s) => ({ isMobileMenuOpen: !s.isMobileMenuOpen })),
 
   // Status - Strictly connected to Supabase
   isSyncing: false,
