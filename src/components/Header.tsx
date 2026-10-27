@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { translations } from '@/lib/i18n';
 import { UserRole } from '@/types/database';
+import CustomSelect from '@/components/ui/CustomSelect';
 import {
   Droplet,
   Languages,
@@ -110,21 +111,27 @@ export default function Header() {
         </button>
 
         {/* Role Simulator Selector */}
-        <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-700">
-          <ShieldCheck className="h-4 w-4 text-blue-600" />
-          <span className="hidden font-medium text-slate-500 sm:inline">Role:</span>
-          <select
-            value={currentRole}
-            onChange={(e) => setCurrentRole(e.target.value as UserRole)}
-            className="bg-transparent font-medium text-slate-800 outline-none cursor-pointer"
-          >
-            {roles.map((r) => (
-              <option key={r.role} value={r.role}>
-                {r.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <CustomSelect
+          value={currentRole}
+          onChange={(val) => setCurrentRole(val as UserRole)}
+          options={roles.map((r) => ({
+            value: r.role,
+            label: r.label,
+            badge: r.role.toUpperCase(),
+            badgeColor:
+              r.role === 'admin'
+                ? 'bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300'
+                : r.role === 'cashier'
+                ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300'
+                : r.role === 'driver'
+                ? 'bg-sky-100 dark:bg-sky-900/60 text-sky-700 dark:text-sky-300'
+                : r.role === 'accountant'
+                ? 'bg-rose-100 dark:bg-rose-900/60 text-rose-700 dark:text-rose-300'
+                : 'bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300',
+          }))}
+          icon={ShieldCheck}
+          buttonClassName="py-1 px-2.5 text-xs rounded-lg border-slate-200"
+        />
 
         {/* Language Toggle */}
         <button

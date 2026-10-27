@@ -21,9 +21,11 @@ import {
   Search,
   Package,
   Layers,
+  Users,
 } from 'lucide-react';
 import CustomerDebtBadge from '@/components/CustomerDebtBadge';
 import KhqrModal from '@/components/KhqrModal';
+import CustomSelect from '@/components/ui/CustomSelect';
 
 export default function PosView() {
   const {
@@ -175,17 +177,27 @@ export default function PosView() {
               <label className="text-xs font-semibold text-slate-500 mb-1 block">
                 {t.pos.searchCustomer}
               </label>
-              <select
+              <CustomSelect
                 value={selectedCustomerId || ''}
-                onChange={(e) => setSelectedCustomerId(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-              >
-                {customers.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name} - {c.business_name || c.phone} ({c.price_tier})
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => setSelectedCustomerId(val)}
+                placeholder={lang === 'km' ? 'ជ្រើសរើសអតិថិជន...' : 'Select a customer...'}
+                searchable={true}
+                icon={Users}
+                options={customers.map((c) => ({
+                  value: c.id,
+                  label: c.name,
+                  sublabel: c.business_name ? `${c.business_name} • ${c.phone}` : c.phone,
+                  badge: c.price_tier.toUpperCase(),
+                  badgeColor:
+                    c.price_tier === 'distributor'
+                      ? 'bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300'
+                      : c.price_tier === 'wholesale'
+                      ? 'bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300'
+                      : 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300',
+                }))}
+                className="w-full"
+                buttonClassName="py-2.5 px-3.5"
+              />
             </div>
 
             {/* Product Search */}

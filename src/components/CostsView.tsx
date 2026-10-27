@@ -15,7 +15,9 @@ import {
   X,
   FileText,
   TrendingDown,
+  Filter,
 } from 'lucide-react';
+import CustomSelect from '@/components/ui/CustomSelect';
 
 export default function CostsView() {
   const { lang, expenses, addExpense, fetchFromSupabase, isSyncing } = useAppStore();
@@ -155,19 +157,21 @@ export default function CostsView() {
           />
         </div>
 
-        <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-          <select
+        <div className="w-full sm:w-auto min-w-[220px]">
+          <CustomSelect
             value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 focus:outline-none"
-          >
-            <option value="all">{lang === 'km' ? 'ប្រភេទទាំងអស់' : 'All Categories'}</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.label}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => setFilterCategory(val)}
+            icon={Filter}
+            options={[
+              { value: 'all', label: lang === 'km' ? 'ប្រភេទទាំងអស់' : 'All Categories', badge: 'All' },
+              ...categories.map((c) => ({
+                value: c.id,
+                label: c.label,
+              })),
+            ]}
+            className="w-full"
+            buttonClassName="py-2 px-3 text-xs"
+          />
         </div>
       </div>
 

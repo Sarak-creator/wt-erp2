@@ -18,6 +18,7 @@ import {
   RefreshCw,
   Building2,
 } from 'lucide-react';
+import CustomSelect from '@/components/ui/CustomSelect';
 
 export default function CustomersView() {
   const {
@@ -186,19 +187,22 @@ export default function CustomersView() {
           />
         </div>
 
-        <div className="flex gap-2 w-full sm:w-auto">
-          <select
+        <div className="w-full sm:w-auto min-w-[200px]">
+          <CustomSelect
             value={filterZone}
-            onChange={(e) => setFilterZone(e.target.value)}
-            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 focus:outline-none"
-          >
-            <option value="all">{lang === 'km' ? 'តំបន់ទាំងអស់' : 'All Delivery Zones'}</option>
-            {deliveryZones.map((z) => (
-              <option key={z.id} value={z.id}>
-                {z.name}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => setFilterZone(val)}
+            icon={MapPin}
+            options={[
+              { value: 'all', label: lang === 'km' ? 'តំបន់ទាំងអស់' : 'All Delivery Zones', badge: 'All' },
+              ...deliveryZones.map((z) => ({
+                value: z.id,
+                label: z.name,
+                sublabel: z.code,
+              })),
+            ]}
+            className="w-full"
+            buttonClassName="py-2 px-3 text-xs"
+          />
         </div>
       </div>
 
@@ -363,16 +367,18 @@ export default function CustomersView() {
                   <label className="block text-xs font-semibold text-slate-600 mb-1">
                     {lang === 'km' ? 'កម្រិតតម្លៃ' : 'Price Tier'}
                   </label>
-                  <select
+                  <CustomSelect
                     value={priceTier}
-                    onChange={(e) => setPriceTier(e.target.value as any)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="retail">Retail (លក់រាយ)</option>
-                    <option value="wholesale">Wholesale (បោះដុំ)</option>
-                    <option value="distributor">Distributor (តំណាងចែកចាយ)</option>
-                    <option value="subscription">Subscription (ប្រចាំខែ)</option>
-                  </select>
+                    onChange={(val) => setPriceTier(val as any)}
+                    options={[
+                      { value: 'retail', label: 'Retail (លក់រាយ)', badge: 'Standard' },
+                      { value: 'wholesale', label: 'Wholesale (បោះដុំ)', badge: 'Discount', badgeColor: 'bg-blue-100 text-blue-700' },
+                      { value: 'distributor', label: 'Distributor (តំណាងចែកចាយ)', badge: 'VIP', badgeColor: 'bg-purple-100 text-purple-700' },
+                      { value: 'subscription', label: 'Subscription (ប្រចាំខែ)', badge: 'Monthly', badgeColor: 'bg-amber-100 text-amber-700' },
+                    ]}
+                    className="w-full"
+                    buttonClassName="w-full py-2 px-3 text-sm"
+                  />
                 </div>
               </div>
 
@@ -380,18 +386,22 @@ export default function CustomersView() {
                 <label className="block text-xs font-semibold text-slate-600 mb-1">
                   {lang === 'km' ? 'តំបន់ដឹកជញ្ជូន' : 'Delivery Route / Zone'}
                 </label>
-                <select
+                <CustomSelect
                   value={zoneId}
-                  onChange={(e) => setZoneId(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">{lang === 'km' ? '-- ជ្រើសរើសតំបន់ --' : '-- Select Zone --'}</option>
-                  {deliveryZones.map((z) => (
-                    <option key={z.id} value={z.id}>
-                      {z.name} ({z.code})
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => setZoneId(val)}
+                  placeholder={lang === 'km' ? '-- ជ្រើសរើសតំបន់ --' : '-- Select Zone --'}
+                  icon={MapPin}
+                  options={[
+                    { value: '', label: lang === 'km' ? '-- គ្មានតំបន់ (None) --' : '-- None --' },
+                    ...deliveryZones.map((z) => ({
+                      value: z.id,
+                      label: z.name,
+                      sublabel: z.code,
+                    })),
+                  ]}
+                  className="w-full"
+                  buttonClassName="w-full py-2 px-3 text-sm"
+                />
               </div>
 
               <div>
