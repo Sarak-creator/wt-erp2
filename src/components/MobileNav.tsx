@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useAppStore } from '@/lib/store';
-import { ShoppingCart, Package, Truck, Factory, DollarSign, Menu } from 'lucide-react';
+import { ShoppingCart, Cylinder, Truck, Factory, DollarSign, Menu } from 'lucide-react';
 import { UserRole } from '@/types/database';
 
 interface MobileNavProps {
@@ -17,7 +17,7 @@ export default function MobileNav({ currentTab, setCurrentTab }: MobileNavProps)
 
   const tabs = [
     { id: 'pos', label: lang === 'km' ? 'លក់ POS' : 'POS', icon: ShoppingCart, allowed: ['admin', 'cashier', 'accountant'] as UserRole[] },
-    { id: 'bottles', label: lang === 'km' ? 'ធុង ២០L' : 'Bottles', icon: Package, allowed: ['admin', 'cashier', 'accountant', 'inventory_manager'] as UserRole[] },
+    { id: 'bottles', label: lang === 'km' ? 'ធុង ២០L' : 'Bottles', icon: Cylinder, allowed: ['admin', 'cashier', 'accountant', 'inventory_manager'] as UserRole[] },
     { id: 'logistics', label: lang === 'km' ? 'ដឹកជញ្ជូន' : 'Dispatch', icon: Truck, allowed: ['admin', 'driver', 'inventory_manager'] as UserRole[] },
     { id: 'manufacturing', label: lang === 'km' ? 'ផលិតកម្ម' : 'Factory', icon: Factory, allowed: ['admin', 'inventory_manager'] as UserRole[] },
     { id: 'finance', label: lang === 'km' ? 'ហិរញ្ញវត្ថុ' : 'Finance', icon: DollarSign, allowed: ['admin', 'accountant'] as UserRole[] },

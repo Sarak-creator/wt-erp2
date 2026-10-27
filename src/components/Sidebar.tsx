@@ -22,6 +22,9 @@ import {
   X,
   BookOpen,
   DollarSign,
+  ClipboardList,
+  ShoppingBag,
+  Cylinder,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -94,7 +97,7 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
     {
       id: 'orders',
       label: lang === 'km' ? 'ការបញ្ជាទិញ' : 'Orders',
-      icon: ShoppingCart,
+      icon: ClipboardList,
       allowed: ['admin', 'cashier', 'accountant', 'driver'] as UserRole[],
       badge: orders.length.toString(),
       badgeColor: 'bg-sky-100 text-sky-800',
@@ -126,7 +129,7 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
     {
       id: 'purchases',
       label: lang === 'km' ? 'បញ្ជាទិញចូល (PO)' : 'Purchasing',
-      icon: Truck,
+      icon: ShoppingBag,
       allowed: ['admin', 'inventory_manager', 'accountant'] as UserRole[],
       badge: purchases.length.toString(),
       badgeColor: 'bg-cyan-100 text-cyan-800',
@@ -142,7 +145,7 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
     {
       id: 'bottles',
       label: lang === 'km' ? 'ដប ២០លីត្រ' : '20L Bottles',
-      icon: Package,
+      icon: Cylinder,
       allowed: ['admin', 'cashier', 'accountant', 'inventory_manager'] as UserRole[],
       badge: 'Ledger',
       badgeColor: 'bg-blue-100 text-blue-800',

@@ -33,6 +33,9 @@ import {
   WifiOff,
   Sparkles,
   Download,
+  ClipboardList,
+  ShoppingBag,
+  Cylinder,
 } from 'lucide-react';
 
 interface GuideSection {
@@ -111,7 +114,7 @@ export default function UserGuideView() {
       titleEn: '20L Bottle Circulation & Ledger',
       badge: 'Asset Security',
       badgeColor: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/60 dark:text-cyan-300',
-      icon: Package,
+      icon: Cylinder,
       targetRoles: ['admin', 'inventory_manager', 'cashier', 'driver'],
       summaryKh:
         'ការពារការបាត់បង់សំបកធុងទឹក ២០L របស់រោងចក្រ តាមដានចរាចរណ៍ធុងចេញ-ចូល ធុងនៅជាមួយអតិថិជន ធុងលើរថយន្ត និងប្រាក់កក់សំបកធុង។',
@@ -304,7 +307,7 @@ export default function UserGuideView() {
       titleEn: 'Purchase Orders & Raw Material Sourcing',
       badge: 'Procurement',
       badgeColor: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/60 dark:text-cyan-300',
-      icon: Truck,
+      icon: ShoppingBag,
       targetRoles: ['admin', 'inventory_manager', 'accountant'],
       summaryKh:
         'គ្រប់គ្រងការទិញវត្ថុធាតុដើមពីអ្នកផ្គត់ផ្គង់ (Suppliers) ដូចជាសំបកធុង ២០L ថ្មី, ដប PET ទទេ, គម្រប, ផ្លាកសញ្ញា និងការបញ្ចូលស្តុកពេលទំនិញមកដល់។',
@@ -327,7 +330,7 @@ export default function UserGuideView() {
       titleEn: 'Sales Orders & Invoices',
       badge: 'Billing',
       badgeColor: 'bg-sky-100 text-sky-800 dark:bg-sky-900/60 dark:text-sky-300',
-      icon: ShoppingCart,
+      icon: ClipboardList,
       targetRoles: ['admin', 'cashier', 'accountant', 'driver'],
       summaryKh:
         'រក្សាទុកប្រវត្តិវិក្កយបត្រលក់ទាំងអស់ ស្វែងរកតាមលេខវិក្កយបត្រ ឈ្មោះអតិថិជន ឬកាលបរិច្ឆេទ ព្រមទាំងអាចបោះពុម្ពវិក្កយបត្រឡើងវិញបានគ្រប់ពេល។',
