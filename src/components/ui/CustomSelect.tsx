@@ -19,7 +19,7 @@ interface CustomSelectProps {
   placeholder?: string;
   icon?: React.ComponentType<{ className?: string }>;
   searchable?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
   className?: string;
   buttonClassName?: string;
   menuClassName?: string;
@@ -33,7 +33,7 @@ export default function CustomSelect({
   placeholder = 'Select an option...',
   icon: LeftIcon,
   searchable = false,
-  size = 'md',
+  size = 'sm',
   className = '',
   buttonClassName = '',
   menuClassName = '',
@@ -67,6 +67,12 @@ export default function CustomSelect({
 
   // Size styling maps
   const sizeStyles = {
+    xs: {
+      button: 'h-6 px-2 py-0.5 text-[11px] rounded-md',
+      icon: 'h-3 w-3',
+      item: 'px-1.5 py-0.5 text-[11px] rounded',
+      badge: 'text-[8px] px-1 py-0.2',
+    },
     sm: {
       button: 'h-8 px-2.5 py-1 text-xs rounded-lg',
       icon: 'h-3.5 w-3.5',
@@ -74,13 +80,13 @@ export default function CustomSelect({
       badge: 'text-[9px] px-1.5 py-0.2',
     },
     md: {
-      button: 'h-9 md:h-10 px-3 py-1.5 text-xs md:text-sm rounded-xl',
+      button: 'h-8 md:h-9 px-3 py-1.5 text-xs md:text-sm rounded-lg',
       icon: 'h-3.5 w-3.5',
       item: 'px-2.5 py-1.5 text-xs md:text-sm rounded-lg',
       badge: 'text-[10px] px-1.5 py-0.5',
     },
     lg: {
-      button: 'h-11 px-3.5 py-2 text-sm rounded-xl',
+      button: 'h-10 px-3.5 py-2 text-sm rounded-xl',
       icon: 'h-4 w-4',
       item: 'px-3 py-2 text-sm rounded-lg',
       badge: 'text-xs px-2 py-0.5',

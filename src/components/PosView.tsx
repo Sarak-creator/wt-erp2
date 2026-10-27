@@ -170,11 +170,11 @@ export default function PosView() {
       {/* LEFT COLUMN: Product Catalog (7 cols on desktop) */}
       <div className="lg:col-span-7 flex flex-col space-y-4">
         {/* Search & Customer Selection Bar */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-3 shadow-sm border border-slate-200 dark:border-slate-700">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
             {/* Customer Picker */}
             <div>
-              <label className="text-xs font-semibold text-slate-500 mb-1 block">
+              <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1 block">
                 {t.pos.searchCustomer}
               </label>
               <CustomSelect
@@ -182,6 +182,7 @@ export default function PosView() {
                 onChange={(val) => setSelectedCustomerId(val)}
                 placeholder={lang === 'km' ? 'ជ្រើសរើសអតិថិជន...' : 'Select a customer...'}
                 searchable={true}
+                size="sm"
                 icon={Users}
                 options={customers.map((c) => ({
                   value: c.id,
@@ -196,23 +197,23 @@ export default function PosView() {
                       : 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300',
                 }))}
                 className="w-full"
-                buttonClassName="h-[40px] px-3"
+                buttonClassName="h-8 px-2.5 text-xs rounded-lg"
               />
             </div>
 
             {/* Product Search */}
             <div>
-              <label className="text-xs font-semibold text-slate-500 mb-1 block">
+              <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1 block">
                 {t.pos.searchProduct}
               </label>
               <div className="relative">
-                <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-slate-400" />
                 <input
                   type="text"
                   placeholder={t.pos.searchProduct}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 pl-9 pr-3 py-2 text-sm text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  className="w-full h-8 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 pl-8 pr-2.5 text-xs text-slate-800 dark:text-slate-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-100"
                 />
               </div>
             </div>
