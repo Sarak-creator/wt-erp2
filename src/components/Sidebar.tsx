@@ -169,7 +169,7 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
       <aside
         className={`${
           isCollapsed ? 'w-16 md:w-[72px]' : 'w-64'
-        } border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col justify-between shrink-0 hidden md:flex sticky top-14 sm:top-16 h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] z-20 transition-all duration-300 ease-in-out`}
+        } border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col justify-between shrink-0 hidden md:flex h-full z-20 transition-all duration-300 ease-in-out`}
       >
         <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
           {/* Sidebar Header & Collapse Toggle */}

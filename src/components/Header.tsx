@@ -70,7 +70,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 sm:h-16 w-full items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 px-2.5 sm:px-4 md:px-6 backdrop-blur-md">
+    <header className="shrink-0 sticky top-0 z-30 flex h-14 sm:h-16 w-full items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 px-2.5 sm:px-4 md:px-6 backdrop-blur-md">
       {/* Brand & Factory Identity */}
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         {/* Mobile Hamburger Menu Toggle */}
