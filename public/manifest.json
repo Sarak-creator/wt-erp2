@@ -1,16 +1,73 @@
 {
-  "name": "សហគ្រាសផលិតទឹកបរិសុទ្ធ | Pure Water Factory ERP",
-  "short_name": "WaterERP",
-  "description": "Pure Water Factory ERP, POS, Bottle Deposit Tracking & Logistics PWA",
+  "name": "សហគ្រាសផលិតទឹកបរិសុទ្ធ ខ្មែរ អង្គរ | Pure Water Factory ERP",
+  "short_name": "WT-ERP",
+  "description": "Enterprise Pure Drinking Water Manufacturing, Bottle Deposit Tracking, Route Logistics, POS & Financial System",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#0284c7",
+  "orientation": "any",
+  "background_color": "#0f172a",
   "theme_color": "#0284c7",
+  "categories": ["business", "productivity", "utilities"],
   "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
     {
       "src": "/favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "ចំណុចលក់ (POS)",
+      "short_name": "POS",
+      "description": "បើកផ្ទាំងគិតលុយ និងលក់ទឹក",
+      "url": "/?tab=pos",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "សំបកធុង ២០លីត្រ",
+      "short_name": "Bottle Ledger",
+      "description": "តាមដានសំបកធុងជំពាក់ និងប្រគល់",
+      "url": "/?tab=bottle-ledger",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "ចាត់ចែងឡានដឹក",
+      "short_name": "Logistics",
+      "description": "រៀបចំឡានដឹកទឹកជូនអតិថិជន",
+      "url": "/?tab=logistics",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "របៀបប្រើប្រាស់",
+      "short_name": "User Guide",
+      "description": "មគ្គុទ្ទេសក៍ណែនាំការប្រើប្រាស់ប្រព័ន្ធ ERP",
+      "url": "/?tab=guide",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

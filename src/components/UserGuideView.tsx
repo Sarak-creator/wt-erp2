@@ -32,6 +32,7 @@ import {
   Smartphone,
   WifiOff,
   Sparkles,
+  Download,
 } from 'lucide-react';
 
 interface GuideSection {
@@ -457,6 +458,37 @@ export default function UserGuideView() {
           title: 'ដំណើរការពេលដាច់អ៊ីនធឺណិត (Offline-First)',
           desc: 'ពេលដាច់អ៊ីនធឺណិត ប្រព័ន្ធរក្សាទុកក្នុង Local Storage ហើយ Sync ទៅ Cloud ស្វ័យប្រវត្តនៅពេលមានអ៊ីនធឺណិតវិញ។',
         },
+      ],
+    },
+    {
+      id: 'install-pwa',
+      category: 'system',
+      titleKh: 'ដំឡើង Shortcut App លើ Desktop & Mobile (Install Shortcut App)',
+      titleEn: 'Install Shortcut App (PWA & Desktop)',
+      badge: 'Shortcut PWA',
+      badgeColor: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/60 dark:text-cyan-300',
+      icon: Download,
+      targetRoles: ['admin', 'cashier', 'driver', 'accountant', 'inventory_manager'],
+      summaryKh:
+        'របៀបដំឡើងរូបតំណាង Shortcut App លើអេក្រង់ Desktop Windows, ទូរស័ព្ទដៃ Android ឬ iPhone ដើម្បីបើកដំណើរការដូចកម្មវិធីកុំព្យូទ័រពិតប្រាកដ ដោយគ្មានរបារ Address Bar របស់ Browser ឡើយ។',
+      stepsKh: [
+        'Windows Desktop: គ្រាន់តែចុចពីរដង (Double click) លើ Shortcut «Water-ERP.lnk» ឬ «Start-Water-ERP.lnk» នៅលើ Desktop ដែលប្រព័ន្ធបានបង្កើតជូន។',
+        'Google Chrome / Microsoft Edge: ចុចប៊ូតុង «📱 ដំឡើង App» នៅរបារខាងលើបង្អស់ ឬចុចរូបតំណាង ⊕ (Install) ក្នុងរបារ URL រួចចុច Install។',
+        'Android Phone/Tablet: បើកវេបសាយក្នុង Chrome ចុច Menu ចុច ៣ ➔ ជ្រើសរើស «Add to Home screen» ឬ «Install App»។',
+        'Apple iPhone/iPad (Safari): ចុចប៊ូតុង Share (⎋) ➔ អូសចុះក្រោមចុច «Add to Home Screen (បន្ថែមទៅអេក្រង់ដើម ➕)»។',
+      ],
+      keyFeaturesKh: [
+        {
+          title: 'ដំណើរការ Standalone ពេញអេក្រង់',
+          desc: 'បើកក្នុងផ្ទាំង App ដាច់ដោយឡែក គ្មាន Browser URL bar ផ្ដល់អារម្មណ៍ដូច Native Software ពិតៗ។',
+        },
+        {
+          title: 'គាំទ្រ App Shortcuts រហ័ស',
+          desc: 'អាចចុចម៉ៅស្ដាំលើ Icon លើ Windows Taskbar ដើម្បីលោតទៅ POS, សំបកធុង, ឬ ដឹកជញ្ជូន ភ្លាមៗ។',
+        },
+      ],
+      proTipsKh: [
+        'ប្រើ Shortcut «Start-Water-ERP.lnk» នៅពេលណាដែលចង់បើកប្រព័ន្ធពីដំបូង ព្រោះវាជួយបើក Next.js Dev Server ដោយស្វ័យប្រវត្តិ!',
       ],
     },
   ];
