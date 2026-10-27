@@ -52,6 +52,7 @@ if (process.platform === 'win32') {
 const isVercel = Boolean(process.env.VERCEL);
 
 const nextConfig: NextConfig = {
+  turbopack: {},
   // On Vercel, use standard output directory
   ...(isVercel ? {} : { distDir: '.next_build' }),
   typescript: {

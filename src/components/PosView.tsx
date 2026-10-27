@@ -50,7 +50,6 @@ export default function PosView() {
   const t = translations[lang];
   const selectedCustomer = customers.find((c) => c.id === selectedCustomerId);
 
-  const [mobileTab, setMobileTab] = useState<'catalog' | 'cart'>('catalog');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
   const [discountPercent, setDiscountPercent] = useState<number>(0);
   const [searchTerm, setSearchTerm] = useState('');
@@ -167,46 +166,9 @@ export default function PosView() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 p-3 sm:p-4 md:p-6 bg-slate-50 dark:bg-slate-900 min-h-[calc(100vh-4rem)]">
-      {/* Mobile / Tablet Segmented Switcher (< lg) */}
-      <div className="lg:hidden col-span-1 flex items-center bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl shadow-inner">
-        <button
-          type="button"
-          onClick={() => setMobileTab('catalog')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-lg transition-all ${
-            mobileTab === 'catalog'
-              ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-          }`}
-        >
-          <Package className="h-4 w-4" />
-          <span>{lang === 'km' ? 'ទំនិញលក់ (Catalog)' : 'Products'}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setMobileTab('cart')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-lg transition-all relative ${
-            mobileTab === 'cart'
-              ? 'bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-          }`}
-        >
-          <ShoppingCart className="h-4 w-4" />
-          <span>{lang === 'km' ? 'កន្ត្រកទំនិញ (Cart)' : 'Cart'}</span>
-          {cart.length > 0 && (
-            <span className="rounded-full bg-sky-600 text-white text-[10px] px-1.5 py-0.2 font-black ml-1 animate-pulse">
-              {cart.reduce((sum, ci) => sum + ci.quantity, 0)}
-            </span>
-          )}
-        </button>
-      </div>
-
-      {/* LEFT COLUMN: Product Catalog (7 cols on desktop) */}
-      <div
-        className={`lg:col-span-7 flex flex-col space-y-3 sm:space-y-4 ${
-          mobileTab === 'catalog' ? 'block' : 'hidden lg:flex'
-        }`}
-      >
+    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-5 p-3 sm:p-4 md:p-5 bg-slate-50 dark:bg-slate-900 min-h-[calc(100vh-4rem)]">
+      {/* LEFT COLUMN: Product Catalog (7 cols on md, 8 on xl) */}
+      <div className="md:col-span-7 xl:col-span-8 flex flex-col space-y-3 sm:space-y-4">
         {/* Search & Customer Selection Bar */}
         <div className="bg-white dark:bg-slate-800 rounded-xl p-3 shadow-sm border border-slate-200 dark:border-slate-700">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -370,12 +332,8 @@ export default function PosView() {
         </div>
       </div>
 
-      {/* RIGHT COLUMN: POS Cart & Checkout Terminal (5 cols on desktop, sticky) */}
-      <div
-        className={`lg:col-span-5 flex flex-col bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-3.5 sm:p-4 md:p-5 justify-between lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto ${
-          mobileTab === 'cart' ? 'block' : 'hidden lg:flex'
-        }`}
-      >
+      {/* RIGHT COLUMN: POS Cart & Checkout Terminal (5 cols on md, 4 cols on xl, sticky) */}
+      <div className="md:col-span-5 xl:col-span-4 flex flex-col bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-3.5 sm:p-4 md:p-5 justify-between md:sticky md:top-20 md:max-h-[calc(100vh-6rem)] md:overflow-y-auto">
         <div>
           {/* Cart Header */}
           <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700">
@@ -388,25 +346,16 @@ export default function PosView() {
                 {cart.length}
               </span>
             </div>
-            <div className="flex items-center gap-3">
+            {cart.length > 0 && (
               <button
                 type="button"
-                onClick={() => setMobileTab('catalog')}
-                className="lg:hidden text-xs text-sky-600 dark:text-sky-400 font-bold hover:underline"
+                onClick={clearCart}
+                className="text-xs text-rose-500 hover:text-rose-700 font-medium flex items-center gap-1"
               >
-                ← {lang === 'km' ? 'បន្ថែមទំនិញ' : 'Add Items'}
+                <Trash2 className="h-3.5 w-3.5" />
+                {lang === 'km' ? 'សម្អាត' : 'Clear'}
               </button>
-              {cart.length > 0 && (
-                <button
-                  type="button"
-                  onClick={clearCart}
-                  className="text-xs text-rose-500 hover:text-rose-700 font-medium flex items-center gap-1"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                  {lang === 'km' ? 'សម្អាត' : 'Clear'}
-                </button>
-              )}
-            </div>
+            )}
           </div>
 
           {/* Cart Line Items */}
@@ -575,28 +524,6 @@ export default function PosView() {
           </button>
         </div>
       </div>
-
-      {/* Floating Bottom Cart Bar on Mobile when on Catalog (< lg) */}
-      {mobileTab === 'catalog' && cart.length > 0 && (
-        <div className="fixed bottom-20 left-3 right-3 z-30 lg:hidden">
-          <button
-            type="button"
-            onClick={() => setMobileTab('cart')}
-            className="w-full flex items-center justify-between bg-sky-600 hover:bg-sky-500 text-white px-4 py-3 rounded-2xl shadow-2xl shadow-sky-600/40 font-bold active:scale-[0.98] transition-all"
-          >
-            <div className="flex items-center gap-2">
-              <span className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center text-xs">
-                {cart.reduce((sum, ci) => sum + ci.quantity, 0)}
-              </span>
-              <span className="text-xs">{lang === 'km' ? 'មើលកន្ត្រកទំនិញ' : 'View Cart & Checkout'}</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-sm font-black">
-              <span>{formatKHR(grandTotal)}</span>
-              <span>➔</span>
-            </div>
-          </button>
-        </div>
-      )}
 
       {/* MODAL 1: Bakong KHQR Component */}
       <KhqrModal

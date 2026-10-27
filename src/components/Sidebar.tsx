@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppStore } from '@/lib/store';
 import { translations } from '@/lib/i18n';
 import { UserRole } from '@/types/database';
@@ -17,6 +17,8 @@ import {
   Receipt,
   UserCheck,
   Settings,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -28,6 +30,15 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
   const { lang, currentRole, orders, inventory, customers, employees, purchases, customerDebts, expenses } =
     useAppStore();
   const t = translations[lang];
+
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Auto collapse sidebar when entering POS
+  useEffect(() => {
+    if (currentTab === 'pos') {
+      setIsCollapsed(true);
+    }
+  }, [currentTab]);
 
   const isAccessible = (allowedRoles: UserRole[]) => {
     return allowedRoles.includes(currentRole);
@@ -141,58 +152,115 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
   ];
 
   return (
-    <aside className="w-64 border-r border-slate-200 bg-white flex flex-col justify-between shrink-0 hidden md:flex">
-      <div className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-140px)]">
-        <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-          {lang === 'km' ? 'ម៉ូឌុលគ្រប់គ្រងសហគ្រាស' : 'Enterprise Modules'}
+    <aside
+      className={`${
+        isCollapsed ? 'w-16 md:w-[72px]' : 'w-64'
+      } border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col justify-between shrink-0 hidden md:flex transition-all duration-300 ease-in-out`}
+    >
+      <div>
+        {/* Sidebar Header & Collapse Toggle */}
+        <div className="flex items-center justify-between p-3 border-b border-slate-100 dark:border-slate-800">
+          {!isCollapsed ? (
+            <div className="px-1 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 truncate">
+              {lang === 'km' ? 'ម៉ូឌុលគ្រប់គ្រង' : 'Modules'}
+            </div>
+          ) : (
+            <span className="w-1" />
+          )}
+          <button
+            type="button"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors mx-auto"
+            title={
+              isCollapsed
+                ? lang === 'km'
+                  ? 'ពង្រីក Sidebar'
+                  : 'Expand Sidebar'
+                : lang === 'km'
+                ? 'បង្រួម Sidebar'
+                : 'Collapse Sidebar'
+            }
+          >
+            {isCollapsed ? (
+              <PanelLeftOpen className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            ) : (
+              <PanelLeftClose className="h-4 w-4" />
+            )}
+          </button>
         </div>
 
-        {navItems.map((item) => {
-          if (!isAccessible(item.allowed)) return null;
+        {/* Navigation Items */}
+        <div className="p-2 space-y-1 overflow-y-auto max-h-[calc(100vh-140px)]">
+          {navItems.map((item) => {
+            if (!isAccessible(item.allowed)) return null;
 
-          const Icon = item.icon;
-          const isActive = currentTab === item.id;
+            const Icon = item.icon;
+            const isActive = currentTab === item.id;
 
-          return (
-            <button
-              key={item.id}
-              onClick={() => setCurrentTab(item.id)}
-              className={`w-full flex items-center justify-between rounded-xl px-3.5 py-2.5 text-xs font-semibold transition-all ${
-                isActive
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Icon className={`h-4 w-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                <span>{item.label}</span>
-              </div>
-              {item.badge && (
-                <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                    isActive ? 'bg-white/20 text-white' : item.badgeColor
-                  }`}
-                >
-                  {item.badge}
-                </span>
-              )}
-            </button>
-          );
-        })}
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setCurrentTab(item.id)}
+                title={isCollapsed ? item.label : undefined}
+                className={`w-full flex items-center ${
+                  isCollapsed ? 'justify-center px-2 py-2.5' : 'justify-between px-3 py-2.5'
+                } rounded-xl text-xs font-semibold transition-all group relative ${
+                  isActive
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
+                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} min-w-0`}>
+                  <Icon
+                    className={`h-4 w-4 shrink-0 ${
+                      isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200'
+                    }`}
+                  />
+                  {!isCollapsed && <span className="truncate">{item.label}</span>}
+                </div>
+                {!isCollapsed && item.badge && (
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 ${
+                      isActive ? 'bg-white/20 text-white' : item.badgeColor
+                    }`}
+                  >
+                    {item.badge}
+                  </span>
+                )}
+                {/* Floating Tooltip for Collapsed Mode */}
+                {isCollapsed && (
+                  <span className="absolute left-full ml-2 px-2.5 py-1 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-medium rounded-lg shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap">
+                    {item.label}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* RBAC notice footer */}
-      <div className="p-3 border-t border-slate-100 bg-slate-50/50 m-3 rounded-xl border border-slate-200/60 text-xs">
-        <div className="flex items-center gap-2 text-slate-700 font-bold mb-0.5">
-          <Shield className="h-3.5 w-3.5 text-blue-600" />
-          <span>RBAC Active</span>
+      {isCollapsed ? (
+        <div
+          className="p-3 flex justify-center border-t border-slate-100 dark:border-slate-800"
+          title={`RBAC Active: ${t.roles[currentRole]}`}
+        >
+          <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
         </div>
-        <p className="text-[11px] text-slate-500">
-          {lang === 'km'
-            ? `តួនាទីបច្ចុប្បន្ន: ${t.roles[currentRole]}`
-            : `Logged in as ${t.roles[currentRole]}`}
-        </p>
-      </div>
+      ) : (
+        <div className="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 m-2.5 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-xs">
+          <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold mb-0.5">
+            <Shield className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+            <span>RBAC Active</span>
+          </div>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+            {lang === 'km'
+              ? `តួនាទី: ${t.roles[currentRole]}`
+              : `Logged in as ${t.roles[currentRole]}`}
+          </p>
+        </div>
+      )}
     </aside>
   );
 }

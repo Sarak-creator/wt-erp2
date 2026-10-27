@@ -59,7 +59,7 @@ export default function Home() {
   }, [currentRole]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 pb-16 md:pb-0">
+    <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 pb-16 md:pb-0">
       <Header />
 
       <div className="flex flex-1 overflow-hidden">
