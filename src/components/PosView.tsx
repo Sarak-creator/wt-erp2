@@ -454,7 +454,7 @@ export default function PosView() {
 
         {/* RIGHT COLUMN: POS Cart & Checkout Terminal (Entire Cart container scrolls vertically) */}
         <div
-          className={`pos-cart-container md:col-span-5 xl:col-span-4 flex flex-col bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-3.5 sm:p-4 space-y-3.5 ${
+          className={`pos-cart-container md:col-span-5 xl:col-span-4 flex flex-col bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-3.5 sm:p-4 pb-8 sm:pb-10 space-y-3.5 ${
             posMobileTab === 'cart' ? 'flex' : 'hidden md:flex'
           }`}
         >
@@ -832,6 +832,9 @@ export default function PosView() {
               <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />
               <span>✓ {t.pos.checkout} ({formatKHR(grandTotal)})</span>
             </button>
+
+            {/* Generous bottom buffer ensuring the checkout button is never cut off when scrolled */}
+            <div className="h-8 sm:h-10 shrink-0" />
           </div>
         </div>
       </div>
