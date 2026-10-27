@@ -169,7 +169,7 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
       <aside
         className={`${
           isCollapsed ? 'w-16 md:w-[72px]' : 'w-64'
-        } border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col justify-between shrink-0 hidden md:flex h-full z-20 transition-all duration-300 ease-in-out`}
+        } border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col justify-between shrink-0 hidden md:flex h-full z-20 overflow-x-hidden transition-all duration-300 ease-in-out`}
       >
         <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
           {/* Sidebar Header & Collapse Toggle */}
@@ -203,8 +203,8 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
             </button>
           </div>
 
-          {/* Navigation Items (Smooth Independent Scroll) */}
-          <div className="p-2 space-y-1 overflow-y-auto flex-1 min-h-0 overscroll-contain">
+          {/* Navigation Items (Smooth Independent Scroll - No Horizontal Scroll) */}
+          <div className="p-2 space-y-1 overflow-y-auto overflow-x-hidden flex-1 min-h-0 overscroll-contain">
             {navItems.map((item) => {
               if (!isAccessible(item.allowed)) return null;
 
@@ -219,33 +219,27 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
                   title={isCollapsed ? item.label : undefined}
                   className={`w-full flex items-center ${
                     isCollapsed ? 'justify-center px-2 py-2.5' : 'justify-between px-3 py-2.5'
-                  } rounded-xl text-xs font-semibold transition-all group relative ${
+                  } rounded-xl text-xs font-semibold transition-all group overflow-hidden ${
                     isActive
                       ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
                       : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} min-w-0`}>
+                  <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} min-w-0 flex-1 overflow-hidden`}>
                     <Icon
                       className={`h-4 w-4 shrink-0 ${
                         isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200'
                       }`}
                     />
-                    {!isCollapsed && <span className="truncate">{item.label}</span>}
+                    {!isCollapsed && <span className="truncate block">{item.label}</span>}
                   </div>
                   {!isCollapsed && item.badge && (
                     <span
-                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 ${
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold shrink-0 ml-1.5 ${
                         isActive ? 'bg-white/20 text-white' : item.badgeColor
                       }`}
                     >
                       {item.badge}
-                    </span>
-                  )}
-                  {/* Floating Tooltip for Collapsed Mode */}
-                  {isCollapsed && (
-                    <span className="absolute left-full ml-2 px-2.5 py-1 bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-medium rounded-lg shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap">
-                      {item.label}
                     </span>
                   )}
                 </button>
@@ -315,8 +309,8 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
                 </button>
               </div>
 
-              {/* Navigation Items in Drawer (Smooth Scroll) */}
-              <div className="p-3 space-y-1 overflow-y-auto flex-1 min-h-0 overscroll-contain">
+              {/* Navigation Items in Drawer (Smooth Scroll - No Horizontal Scroll) */}
+              <div className="p-3 space-y-1 overflow-y-auto overflow-x-hidden flex-1 min-h-0 overscroll-contain">
                 {navItems.map((item) => {
                   if (!isAccessible(item.allowed)) return null;
 
