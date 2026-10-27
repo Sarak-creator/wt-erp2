@@ -458,10 +458,10 @@ export default function PosView() {
             posMobileTab === 'cart' ? 'flex' : 'hidden md:flex'
           }`}
         >
-          <div className="overflow-hidden">
+          <div>
             {/* Cart Header */}
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700">
-              <div className="flex items-center gap-2 min-w-0">
+              <div className="flex items-center gap-2">
                 {/* On mobile, allow quick back to catalog */}
                 <button
                   type="button"
@@ -471,11 +471,11 @@ export default function PosView() {
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </button>
-                <ShoppingCart className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
-                <h2 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base truncate">
+                <ShoppingCart className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <h2 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">
                   {lang === 'km' ? 'កន្ត្រកទំនិញ' : 'Current Sale Cart'}
                 </h2>
-                <span className="rounded-full bg-blue-100 dark:bg-blue-900/60 px-2 py-0.5 text-xs font-bold text-blue-700 dark:text-blue-300 shrink-0">
+                <span className="rounded-full bg-blue-100 dark:bg-blue-900/60 px-2 py-0.5 text-xs font-bold text-blue-700 dark:text-blue-300">
                   {cart.length}
                 </span>
               </div>
@@ -488,7 +488,7 @@ export default function PosView() {
                     setDiscountAmountInput(0);
                     setDiscountType('percent');
                   }}
-                  className="text-xs text-rose-500 hover:text-rose-700 font-medium flex items-center gap-1 shrink-0 ml-2"
+                  className="text-xs text-rose-500 hover:text-rose-700 font-medium flex items-center gap-1"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                   {lang === 'km' ? 'សម្អាត' : 'Clear'}
@@ -497,7 +497,7 @@ export default function PosView() {
             </div>
 
             {/* Cart Line Items (No Horizontal Scroll) */}
-            <div className="my-2.5 max-h-[160px] sm:max-h-[190px] xl:max-h-[220px] overflow-y-auto overflow-x-hidden space-y-2 pr-0.5">
+            <div className="my-2.5 max-h-[160px] sm:max-h-[190px] xl:max-h-[220px] overflow-y-auto overflow-x-hidden space-y-2 pr-1">
               {cart.length === 0 ? (
                 <div className="text-center py-8 text-slate-400">
                   <ShoppingCart className="h-10 w-10 mx-auto opacity-30 mb-2" />
@@ -513,7 +513,7 @@ export default function PosView() {
                       <span className="font-bold text-slate-800 dark:text-slate-100 block truncate">
                         {lang === 'km' && ci.item.name_kh ? ci.item.name_kh : ci.item.name}
                       </span>
-                      <span className="text-slate-500 dark:text-slate-400 text-[11px] block truncate">
+                      <span className="text-slate-500 dark:text-slate-400 text-[10px] block truncate">
                         {formatKHR(ci.unitPrice)} / {ci.item.unit}
                       </span>
                     </div>
@@ -539,7 +539,7 @@ export default function PosView() {
                         </button>
                       </div>
 
-                      <span className="text-right font-bold text-slate-900 dark:text-white text-xs whitespace-nowrap min-w-[50px]">
+                      <span className="w-14 sm:w-16 text-right font-bold text-slate-900 dark:text-white text-xs truncate">
                         {formatKHR(ci.lineTotal)}
                       </span>
 
@@ -548,7 +548,7 @@ export default function PosView() {
                         onClick={() => removeFromCart(ci.item.id)}
                         className="text-slate-400 hover:text-rose-500 p-0.5"
                       >
-                        <X className="h-3.5 w-3.5" />
+                        <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       </button>
                     </div>
                   </div>
@@ -563,11 +563,11 @@ export default function PosView() {
             <div className="bg-slate-50 dark:bg-slate-700/30 rounded-xl p-2.5 border border-slate-200/80 dark:border-slate-700 space-y-2 overflow-hidden">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-700 dark:text-slate-200">
-                  <Tag className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
-                  <span className="truncate">{lang === 'km' ? 'បញ្ចុះតម្លៃ (Discount)' : 'Discount'}</span>
+                  <Tag className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                  <span>{lang === 'km' ? 'បញ្ចុះតម្លៃ (Discount)' : 'Discount'}</span>
                 </div>
                 {discountAmount > 0 && (
-                  <span className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 shrink-0">
+                  <span className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
                     -{formatKHR(discountAmount)}
                   </span>
                 )}
@@ -578,38 +578,38 @@ export default function PosView() {
                 <button
                   type="button"
                   onClick={() => setDiscountType('percent')}
-                  className={`flex items-center justify-center gap-1 py-1 px-1 rounded-md transition-all text-[11px] min-w-0 overflow-hidden ${
+                  className={`flex items-center justify-center gap-1 py-1 px-1 rounded-md transition-all text-[11px] ${
                     discountType === 'percent'
                       ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm font-bold'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                   }`}
                 >
-                  <Percent className="h-3 w-3 shrink-0" />
-                  <span className="truncate">{lang === 'km' ? 'ភាគរយ (%)' : 'Percent'}</span>
+                  <Percent className="h-3 w-3" />
+                  <span>{lang === 'km' ? 'ភាគរយ (%)' : 'Percent'}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setDiscountType('amount')}
-                  className={`flex items-center justify-center gap-1 py-1 px-1 rounded-md transition-all text-[11px] min-w-0 overflow-hidden ${
+                  className={`flex items-center justify-center gap-1 py-1 px-1 rounded-md transition-all text-[11px] ${
                     discountType === 'amount'
                       ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm font-bold'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
                   }`}
                 >
-                  <Coins className="h-3 w-3 shrink-0" />
-                  <span className="truncate">{lang === 'km' ? 'លុយរៀល (៛)' : 'KHR (៛)'}</span>
+                  <Coins className="h-3 w-3" />
+                  <span>{lang === 'km' ? 'លុយរៀល (៛)' : 'KHR (៛)'}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setDiscountType('free')}
-                  className={`flex items-center justify-center gap-1 py-1 px-1 rounded-md transition-all text-[11px] min-w-0 overflow-hidden ${
+                  className={`flex items-center justify-center gap-1 py-1 px-1 rounded-md transition-all text-[11px] ${
                     discountType === 'free'
                       ? 'bg-emerald-600 text-white shadow-sm font-bold'
                       : 'text-emerald-700 dark:text-emerald-400 hover:text-emerald-800'
                   }`}
                 >
-                  <Gift className="h-3 w-3 shrink-0" />
-                  <span className="truncate">{lang === 'km' ? 'ឥតគិតថ្លៃ' : 'Free'}</span>
+                  <Gift className="h-3 w-3" />
+                  <span>{lang === 'km' ? 'ឥតគិតថ្លៃ' : 'Free'}</span>
                 </button>
               </div>
 
@@ -716,7 +716,7 @@ export default function PosView() {
             </div>
 
             {/* Subtotal & Deposit summary */}
-            <div className="bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 space-y-1 text-xs text-slate-600 dark:text-slate-400">
+            <div className="bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 space-y-1 text-xs text-slate-600 dark:text-slate-400 overflow-hidden">
               <div className="flex justify-between">
                 <span>{t.pos.subtotal}:</span>
                 <span className="font-semibold text-slate-800 dark:text-slate-100">{formatKHR(subtotal)}</span>
@@ -754,7 +754,7 @@ export default function PosView() {
               <label className="text-[11px] sm:text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5 block">
                 {lang === 'km' ? 'វិធីសាស្ត្រទូទាត់' : 'Payment Method'}
               </label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                 {/* Button 1: Cash */}
                 <button
                   type="button"
