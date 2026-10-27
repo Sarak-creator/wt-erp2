@@ -454,7 +454,7 @@ export default function PosView() {
 
         {/* RIGHT COLUMN: POS Cart & Checkout Terminal (Entire Cart container scrolls vertically) */}
         <div
-          className={`md:col-span-5 xl:col-span-4 flex flex-col bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-3.5 sm:p-4 md:sticky md:top-2 md:max-h-[calc(100dvh-5.5rem)] overflow-y-auto overflow-x-hidden space-y-3.5 scroll-smooth ${
+          className={`pos-cart-container md:col-span-5 xl:col-span-4 flex flex-col bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-3.5 sm:p-4 space-y-3.5 ${
             posMobileTab === 'cart' ? 'flex' : 'hidden md:flex'
           }`}
         >
