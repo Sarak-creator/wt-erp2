@@ -454,7 +454,7 @@ export default function PosView() {
 
         {/* RIGHT COLUMN: POS Cart & Checkout Terminal (5 cols on md, 4 on xl, sticky top-2 aligned flush with Catalog) */}
         <div
-          className={`md:col-span-5 xl:col-span-4 flex flex-col bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-3.5 sm:p-4 md:sticky md:top-2 md:max-h-[calc(100dvh-6.5rem)] md:overflow-y-auto overflow-x-hidden space-y-3 ${
+          className={`md:col-span-5 xl:col-span-4 flex flex-col bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-3.5 sm:p-4 md:sticky md:top-2 max-h-[calc(100dvh-8.5rem)] md:max-h-[calc(100dvh-6rem)] overflow-y-auto overflow-x-hidden overscroll-contain space-y-3 ${
             posMobileTab === 'cart' ? 'flex' : 'hidden md:flex'
           }`}
         >
@@ -496,8 +496,8 @@ export default function PosView() {
               )}
             </div>
 
-            {/* Cart Line Items (No Horizontal Scroll) */}
-            <div className="my-2.5 max-h-[160px] sm:max-h-[190px] xl:max-h-[220px] overflow-y-auto overflow-x-hidden space-y-2 pr-1">
+            {/* Cart Line Items (Smooth Vertical Scroll - No Horizontal Scroll) */}
+            <div className="my-2.5 max-h-[160px] sm:max-h-[190px] xl:max-h-[220px] overflow-y-auto overflow-x-hidden overscroll-contain space-y-2 pr-1">
               {cart.length === 0 ? (
                 <div className="text-center py-8 text-slate-400">
                   <ShoppingCart className="h-10 w-10 mx-auto opacity-30 mb-2" />
