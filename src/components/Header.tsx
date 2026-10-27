@@ -20,9 +20,7 @@ import {
   Moon,
   Menu,
   BookOpen,
-  Download,
 } from 'lucide-react';
-import InstallAppModal from '@/components/InstallAppModal';
 
 interface HeaderProps {
   currentTab?: string;
@@ -48,7 +46,6 @@ export default function Header({ currentTab, setCurrentTab }: HeaderProps = {}) 
   const t = translations[lang];
 
   const [showConfigModal, setShowConfigModal] = useState(false);
-  const [showInstallModal, setShowInstallModal] = useState(false);
   const [supabaseUrl, setSupabaseUrl] = useState('');
   const [supabaseAnonKey, setSupabaseAnonKey] = useState('');
 
@@ -173,15 +170,6 @@ export default function Header({ currentTab, setCurrentTab }: HeaderProps = {}) 
           </button>
         )}
 
-        {/* Install Shortcut App Launcher Button */}
-        <button
-          onClick={() => setShowInstallModal(true)}
-          className="flex items-center gap-1.5 rounded-lg border border-cyan-500/30 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 dark:from-cyan-950/50 dark:to-blue-950/50 px-2 py-1 text-xs font-bold text-cyan-700 dark:text-cyan-300 hover:from-cyan-500/20 hover:to-blue-500/20 transition-all shadow-sm h-7 sm:h-8"
-          title={lang === 'km' ? 'ដំឡើង Shortcut App លើ Desktop ឬ ទូរស័ព្ទ' : 'Install Shortcut App'}
-        >
-          <Download className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400" />
-          <span className="hidden md:inline">{lang === 'km' ? 'ដំឡើង App' : 'Install App'}</span>
-        </button>
 
         {/* Language Toggle */}
         <button
@@ -319,11 +307,6 @@ export default function Header({ currentTab, setCurrentTab }: HeaderProps = {}) 
         </div>
       )}
 
-      {/* PWA / Shortcut App Install Modal */}
-      <InstallAppModal
-        isOpen={showInstallModal}
-        onClose={() => setShowInstallModal(false)}
-      />
     </header>
   );
 }
