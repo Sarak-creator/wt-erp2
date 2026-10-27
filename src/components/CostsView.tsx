@@ -16,11 +16,12 @@ import {
   FileText,
   TrendingDown,
   Filter,
+  Trash2,
 } from 'lucide-react';
 import CustomSelect from '@/components/ui/CustomSelect';
 
 export default function CostsView() {
-  const { lang, expenses, addExpense, fetchFromSupabase, isSyncing } = useAppStore();
+  const { lang, expenses, addExpense, deleteExpense, fetchFromSupabase, isSyncing } = useAppStore();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
@@ -64,6 +65,16 @@ export default function CostsView() {
     setIsModalOpen(false);
     setDescription('');
     setAmount(50);
+  };
+
+  const handleDelete = async (id: string, expNumber: string) => {
+    const confirmMsg =
+      lang === 'km'
+        ? `តើលោកអ្នកប្រាកដជាចង់លុបចំណាយ "${expNumber}" នេះមែនទេ?`
+        : `Are you sure you want to delete expense "${expNumber}"?`;
+    if (window.confirm(confirmMsg)) {
+      await deleteExpense(id);
+    }
   };
 
   const filtered = expenses.filter((exp) => {
@@ -186,6 +197,7 @@ export default function CostsView() {
                 <th className="px-6 py-4">{lang === 'km' ? 'ប្រភេទចំណាយ' : 'Category'}</th>
                 <th className="px-6 py-4">{lang === 'km' ? 'បរិយាយ' : 'Description'}</th>
                 <th className="px-6 py-4 text-right">{lang === 'km' ? 'ចំនួនទឹកប្រាក់' : 'Amount'}</th>
+                <th className="px-6 py-4 text-right">{lang === 'km' ? 'សកម្មភាព' : 'Action'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -206,12 +218,22 @@ export default function CostsView() {
                   <td className="px-6 py-4 text-right font-bold text-slate-900 text-base">
                     <div>{formatKHR(exp.amount)}</div>
                   </td>
+                  <td className="px-6 py-4 text-right">
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(exp.id, exp.expense_number)}
+                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition inline-flex items-center"
+                      title={lang === 'km' ? 'លុប' : 'Delete'}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </td>
                 </tr>
               ))}
 
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
+                  <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
                     <Receipt className="w-10 h-10 mx-auto text-slate-300 mb-2" />
                     {lang === 'km' ? 'មិនមានទិន្នន័យចំណាយទេ' : 'No expenses recorded yet'}
                   </td>

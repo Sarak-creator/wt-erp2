@@ -9,6 +9,7 @@ import {
   Plus,
   Search,
   Edit2,
+  Trash2,
   DollarSign,
   Layers,
   AlertTriangle,
@@ -19,7 +20,7 @@ import {
 import CustomSelect from '@/components/ui/CustomSelect';
 
 export default function ProductsView() {
-  const { lang, inventory, addInventoryItem, updateInventoryItem, fetchFromSupabase, isSyncing } =
+  const { lang, inventory, addInventoryItem, updateInventoryItem, deleteInventoryItem, fetchFromSupabase, isSyncing } =
     useAppStore();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -105,6 +106,16 @@ export default function ProductsView() {
 
     setIsSaving(false);
     setIsModalOpen(false);
+  };
+
+  const handleDelete = async (id: string, itemName: string) => {
+    const confirmMsg =
+      lang === 'km'
+        ? `តើលោកអ្នកប្រាកដជាចង់លុបទំនិញ "${itemName}" នេះមែនទេ?`
+        : `Are you sure you want to delete "${itemName}"?`;
+    if (window.confirm(confirmMsg)) {
+      await deleteInventoryItem(id);
+    }
   };
 
   // Only finished goods for Product View, or all based on filter
@@ -210,12 +221,24 @@ export default function ProductsView() {
                     <p className="text-xs text-slate-400">{item.name}</p>
                   )}
                 </div>
-                <button
-                  onClick={() => openEditModal(item)}
-                  className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => openEditModal(item)}
+                    className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                    title={lang === 'km' ? 'កែប្រែ' : 'Edit'}
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(item.id, lang === 'km' && item.name_kh ? item.name_kh : item.name)}
+                    className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                    title={lang === 'km' ? 'លុប' : 'Delete'}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
               {/* Price Details */}

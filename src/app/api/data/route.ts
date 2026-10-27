@@ -404,6 +404,71 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true, data: Array.isArray(created) ? created[0] : created });
       }
 
+      case 'delete_customer': {
+        const { id } = payload;
+        const res = await fetch(`${url}/rest/v1/customers?id=eq.${id}`, {
+          method: 'DELETE',
+          headers,
+        });
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`Failed to delete customer: ${errText}`);
+        }
+        return NextResponse.json({ success: true, data: { id } });
+      }
+
+      case 'delete_inventory_item': {
+        const { id } = payload;
+        const res = await fetch(`${url}/rest/v1/inventory_items?id=eq.${id}`, {
+          method: 'DELETE',
+          headers,
+        });
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`Failed to delete inventory item: ${errText}`);
+        }
+        return NextResponse.json({ success: true, data: { id } });
+      }
+
+      case 'delete_employee': {
+        const { id } = payload;
+        const res = await fetch(`${url}/rest/v1/employees?id=eq.${id}`, {
+          method: 'DELETE',
+          headers,
+        });
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`Failed to delete employee: ${errText}`);
+        }
+        return NextResponse.json({ success: true, data: { id } });
+      }
+
+      case 'delete_order': {
+        const { id } = payload;
+        const res = await fetch(`${url}/rest/v1/orders?id=eq.${id}`, {
+          method: 'DELETE',
+          headers,
+        });
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`Failed to delete order: ${errText}`);
+        }
+        return NextResponse.json({ success: true, data: { id } });
+      }
+
+      case 'delete_expense': {
+        const { id } = payload;
+        const res = await fetch(`${url}/rest/v1/expenses?id=eq.${id}`, {
+          method: 'DELETE',
+          headers,
+        });
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`Failed to delete expense: ${errText}`);
+        }
+        return NextResponse.json({ success: true, data: { id } });
+      }
+
       default:
         return NextResponse.json({ success: false, error: 'Unknown action' }, { status: 400 });
     }

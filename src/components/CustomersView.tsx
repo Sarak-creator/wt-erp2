@@ -11,6 +11,7 @@ import {
   Phone,
   MapPin,
   Edit2,
+  Trash2,
   DollarSign,
   Package,
   ShieldAlert,
@@ -27,6 +28,7 @@ export default function CustomersView() {
     deliveryZones,
     addCustomer,
     updateCustomer,
+    deleteCustomer,
     fetchFromSupabase,
     isSyncing,
     addDebtPayment,
@@ -115,6 +117,16 @@ export default function CustomersView() {
 
     setIsSaving(false);
     setIsModalOpen(false);
+  };
+
+  const handleDelete = async (id: string, customerName: string) => {
+    const confirmMsg =
+      lang === 'km'
+        ? `តើលោកអ្នកប្រាកដជាចង់លុបអតិថិជន "${customerName}" នេះមែនទេ?`
+        : `Are you sure you want to delete customer "${customerName}"?`;
+    if (window.confirm(confirmMsg)) {
+      await deleteCustomer(id);
+    }
   };
 
   const handleRecordPayment = async (e: React.FormEvent) => {
@@ -229,12 +241,24 @@ export default function CustomersView() {
                     </div>
                   )}
                 </div>
-                <button
-                  onClick={() => openEditModal(c)}
-                  className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => openEditModal(c)}
+                    className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                    title={lang === 'km' ? 'កែប្រែ' : 'Edit'}
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(c.id, c.name)}
+                    className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                    title={lang === 'km' ? 'លុប' : 'Delete'}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-1 text-xs text-slate-600">

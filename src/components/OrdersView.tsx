@@ -17,15 +17,26 @@ import {
   RefreshCw,
   Eye,
   Filter,
+  Trash2,
 } from 'lucide-react';
 
 export default function OrdersView() {
-  const { lang, orders, customers, deliveryZones, updateOrderStatus, fetchFromSupabase, isSyncing } =
+  const { lang, orders, customers, deliveryZones, updateOrderStatus, deleteOrder, fetchFromSupabase, isSyncing } =
     useAppStore();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+  const handleDeleteOrder = async (id: string, invoiceNumber: string) => {
+    const confirmMsg =
+      lang === 'km'
+        ? `តើលោកអ្នកប្រាកដជាចង់លុបការបញ្ជាទិញ "${invoiceNumber}" នេះមែនទេ?`
+        : `Are you sure you want to delete order "${invoiceNumber}"?`;
+    if (window.confirm(confirmMsg)) {
+      await deleteOrder(id);
+    }
+  };
 
   const getStatusBadge = (status: OrderStatus) => {
     switch (status) {
@@ -193,22 +204,34 @@ export default function OrdersView() {
                     </td>
                     <td className="px-6 py-4">{getStatusBadge(order.status)}</td>
                     <td className="px-6 py-4 text-right">
-                      {order.status === 'dispatched' && (
+                      <div className="flex items-center justify-end gap-1.5">
+                        {order.status === 'dispatched' && (
+                          <button
+                            type="button"
+                            onClick={() => updateOrderStatus(order.id, 'delivered')}
+                            className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold transition"
+                          >
+                            {lang === 'km' ? 'ប្រគល់រួច' : 'Mark Delivered'}
+                          </button>
+                        )}
+                        {order.status === 'confirmed' && (
+                          <button
+                            type="button"
+                            onClick={() => updateOrderStatus(order.id, 'dispatched')}
+                            className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-bold transition"
+                          >
+                            {lang === 'km' ? 'បញ្ជូនដឹក' : 'Dispatch'}
+                          </button>
+                        )}
                         <button
-                          onClick={() => updateOrderStatus(order.id, 'delivered')}
-                          className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold transition mr-2"
+                          type="button"
+                          onClick={() => handleDeleteOrder(order.id, order.invoice_number)}
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                          title={lang === 'km' ? 'លុប' : 'Delete'}
                         >
-                          {lang === 'km' ? 'ប្រគល់រួច' : 'Mark Delivered'}
+                          <Trash2 className="w-4 h-4" />
                         </button>
-                      )}
-                      {order.status === 'confirmed' && (
-                        <button
-                          onClick={() => updateOrderStatus(order.id, 'dispatched')}
-                          className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-bold transition mr-2"
-                        >
-                          {lang === 'km' ? 'បញ្ជូនដឹក' : 'Dispatch'}
-                        </button>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 );

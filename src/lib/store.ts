@@ -64,6 +64,7 @@ interface AppState {
   setSelectedCustomerId: (id: string | null) => void;
   addCustomer: (cust: Omit<Customer, 'id' | 'created_at' | 'updated_at'>) => Promise<Customer | null>;
   updateCustomer: (id: string, updates: Partial<Customer>) => Promise<Customer | null>;
+  deleteCustomer: (id: string) => Promise<boolean>;
   updateCustomerBalance: (
     customerId: string,
     balanceDelta: number,
@@ -75,6 +76,7 @@ interface AppState {
   inventory: InventoryItem[];
   addInventoryItem: (item: Omit<InventoryItem, 'id' | 'created_at' | 'updated_at'>) => Promise<InventoryItem | null>;
   updateInventoryItem: (id: string, updates: Partial<InventoryItem>) => Promise<InventoryItem | null>;
+  deleteInventoryItem: (id: string) => Promise<boolean>;
   deductInventory: (sku: string, quantity: number) => Promise<void>;
   addInventory: (sku: string, quantity: number) => Promise<void>;
 
@@ -90,6 +92,7 @@ interface AppState {
   // 4. Orders
   orders: Order[];
   addOrder: (order: Omit<Order, 'id' | 'created_at' | 'updated_at'> & { id?: string }) => Promise<Order | null>;
+  deleteOrder: (id: string) => Promise<boolean>;
   updateOrderStatus: (
     orderId: string,
     status: Order['status'],
@@ -106,10 +109,12 @@ interface AppState {
   employees: Employee[];
   addEmployee: (emp: Omit<Employee, 'id' | 'created_at'>) => Promise<Employee | null>;
   updateEmployee: (id: string, updates: Partial<Employee>) => Promise<Employee | null>;
+  deleteEmployee: (id: string) => Promise<boolean>;
 
   // 7. Costs / Expenses
   expenses: Expense[];
   addExpense: (expense: Omit<Expense, 'id' | 'created_at'> & { id?: string }) => Promise<Expense | null>;
+  deleteExpense: (id: string) => Promise<boolean>;
 
   // 8. Purchases (Procurement)
   purchases: Purchase[];
@@ -281,6 +286,24 @@ export const useAppStore = create<AppState>()((set, get) => ({
     return null;
   },
 
+  deleteCustomer: async (id) => {
+    set((state) => ({
+      customers: state.customers.filter((c) => c.id !== id),
+      selectedCustomerId: state.selectedCustomerId === id ? null : state.selectedCustomerId,
+    }));
+    try {
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete_customer', payload: { id } }),
+      });
+      return res.ok;
+    } catch (e) {
+      console.error('Failed to delete customer in Supabase:', e);
+      return false;
+    }
+  },
+
   updateCustomerBalance: async (customerId, balanceDelta, bottleDelta, depositDelta) => {
     const cust = get().customers.find((c) => c.id === customerId);
     if (!cust) return;
@@ -364,6 +387,24 @@ export const useAppStore = create<AppState>()((set, get) => ({
       console.error('Failed to update inventory item in Supabase:', e);
     }
     return null;
+  },
+
+  deleteInventoryItem: async (id) => {
+    set((state) => ({
+      inventory: state.inventory.filter((i) => i.id !== id),
+      cart: state.cart.filter((ci) => ci.item.id !== id),
+    }));
+    try {
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete_inventory_item', payload: { id } }),
+      });
+      return res.ok;
+    } catch (e) {
+      console.error('Failed to delete inventory item in Supabase:', e);
+      return false;
+    }
   },
 
   deductInventory: async (sku, quantity) => {
@@ -491,6 +532,23 @@ export const useAppStore = create<AppState>()((set, get) => ({
     return null;
   },
 
+  deleteOrder: async (id) => {
+    set((state) => ({
+      orders: state.orders.filter((o) => o.id !== id),
+    }));
+    try {
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete_order', payload: { id } }),
+      });
+      return res.ok;
+    } catch (e) {
+      console.error('Failed to delete order in Supabase:', e);
+      return false;
+    }
+  },
+
   updateOrderStatus: async (orderId, status, proofUrl, bottlesDelivered, bottlesReturned) => {
     const updates: Partial<Order> = {
       status,
@@ -585,6 +643,23 @@ export const useAppStore = create<AppState>()((set, get) => ({
     return null;
   },
 
+  deleteEmployee: async (id) => {
+    set((state) => ({
+      employees: state.employees.filter((e) => e.id !== id),
+    }));
+    try {
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete_employee', payload: { id } }),
+      });
+      return res.ok;
+    } catch (e) {
+      console.error('Failed to delete employee in Supabase:', e);
+      return false;
+    }
+  },
+
   // 7. Costs / Expenses
   addExpense: async (expense) => {
     try {
@@ -605,6 +680,23 @@ export const useAppStore = create<AppState>()((set, get) => ({
       console.error('Failed to add expense to Supabase:', e);
     }
     return null;
+  },
+
+  deleteExpense: async (id) => {
+    set((state) => ({
+      expenses: state.expenses.filter((x) => x.id !== id),
+    }));
+    try {
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete_expense', payload: { id } }),
+      });
+      return res.ok;
+    } catch (e) {
+      console.error('Failed to delete expense in Supabase:', e);
+      return false;
+    }
   },
 
   // 8. Purchases & Procurement

@@ -13,6 +13,7 @@ import {
   DollarSign,
   Briefcase,
   Edit2,
+  Trash2,
   Calendar,
   X,
   RefreshCw,
@@ -21,7 +22,7 @@ import {
 import CustomSelect from '@/components/ui/CustomSelect';
 
 export default function EmployeesView() {
-  const { lang, employees, addEmployee, updateEmployee, fetchFromSupabase, isSyncing } = useAppStore();
+  const { lang, employees, addEmployee, updateEmployee, deleteEmployee, fetchFromSupabase, isSyncing } = useAppStore();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
@@ -100,6 +101,16 @@ export default function EmployeesView() {
 
     setIsSaving(false);
     setIsModalOpen(false);
+  };
+
+  const handleDelete = async (id: string, empName: string) => {
+    const confirmMsg =
+      lang === 'km'
+        ? `តើលោកអ្នកប្រាកដជាចង់លុបបុគ្គលិក "${empName}" នេះមែនទេ?`
+        : `Are you sure you want to delete employee "${empName}"?`;
+    if (window.confirm(confirmMsg)) {
+      await deleteEmployee(id);
+    }
   };
 
   const filtered = employees.filter((emp) => {
@@ -197,12 +208,24 @@ export default function EmployeesView() {
                 </span>
                 <h3 className="font-bold text-slate-900 text-base mt-1.5">{emp.name}</h3>
               </div>
-              <button
-                onClick={() => openEditModal(emp)}
-                className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
-              >
-                <Edit2 className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => openEditModal(emp)}
+                  className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
+                  title={lang === 'km' ? 'កែប្រែ' : 'Edit'}
+                >
+                  <Edit2 className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(emp.id, emp.name)}
+                  className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                  title={lang === 'km' ? 'លុប' : 'Delete'}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             <div className="space-y-1.5 text-xs text-slate-600">
