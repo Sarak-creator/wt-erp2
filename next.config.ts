@@ -52,20 +52,23 @@ if (process.platform === 'win32') {
 const isVercel = Boolean(process.env.VERCEL);
 
 const nextConfig: NextConfig = {
-  // On Vercel, use standard .next output directory
+  // On Vercel, use standard output directory
   ...(isVercel ? {} : { distDir: '.next_build' }),
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Silence Next.js 16 Turbopack webpack conflict
-  turbopack: {},
-  webpack: (config) => {
-    config.resolve = config.resolve || {};
-    config.resolve.symlinks = false;
-    config.resolve.alias = config.resolve.alias || {};
-    config.resolve.alias['@'] = path.resolve(process.cwd(), 'src');
-    return config;
-  },
+  // Only apply Windows-specific filesystem workaround when running locally on Windows
+  ...(process.platform === 'win32' && !isVercel
+    ? {
+        webpack: (config) => {
+          config.resolve = config.resolve || {};
+          config.resolve.symlinks = false;
+          config.resolve.alias = config.resolve.alias || {};
+          config.resolve.alias['@'] = path.resolve(process.cwd(), 'src');
+          return config;
+        },
+      }
+    : {}),
 };
 
 export default nextConfig;
