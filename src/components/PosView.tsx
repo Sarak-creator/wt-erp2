@@ -167,7 +167,6 @@ export default function PosView() {
   };
 
   return (
-  return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 p-3 sm:p-4 md:p-6 bg-slate-50 dark:bg-slate-900 min-h-[calc(100vh-4rem)]">
       {/* Mobile / Tablet Segmented Switcher (< lg) */}
       <div className="lg:hidden col-span-1 flex items-center bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl shadow-inner">
